@@ -31,6 +31,51 @@ find_path(XLUA_PROJECT_DIR NAMES SConstruct
 
 MARK_AS_ADVANCED(XLUA_PROJECT_DIR)
 
+set ( CJSON_SRC
+    lua-cjson/fpconv.c
+    lua-cjson/strbuf.c
+    lua-cjson/lua_cjson.c
+)
+set_property (
+    SOURCE ${CJSON_SRC}
+    APPEND
+    PROPERTY COMPILE_DEFINITIONS
+    LUA_LIB
+)
+list ( APPEND THIRDPART_INC lua-cjson )
+set ( THIRDPART_SRC ${THIRDPART_SRC} ${CJSON_SRC} )
+
+set ( SPROTO_SRC
+    sproto/lsproto.c
+    sproto/sproto.c
+)
+set_property (
+    SOURCE ${SPROTO_SRC}
+    APPEND
+    PROPERTY COMPILE_DEFINITIONS
+    LUA_LIB
+)
+list ( APPEND THIRDPART_INC sproto )
+set ( THIRDPART_SRC ${THIRDPART_SRC} ${SPROTO_SRC} )
+
+#begin lpeg
+set ( LPEG_SRC
+    lpeg/lpcap.c
+    lpeg/lpcode.c
+    lpeg/lpprint.c
+    lpeg/lptree.c
+    lpeg/lpvm.c
+)
+set_property(
+    SOURCE ${LPEG_SRC}
+    APPEND
+    PROPERTY COMPILE_DEFINITIONS
+    LUA_LIB
+)
+list ( APPEND THIRDPART_INC lpeg )
+set ( THIRDPART_SRC ${THIRDPART_SRC} ${LPEG_SRC})
+#end lpeg
+
 if (USING_LUAJIT)
 	
     if (APPLE AND NOT IOS)
@@ -98,19 +143,6 @@ else ( )
     list (APPEND LUA_SOCKET luasocket/usocket.c)
 endif ( )
 
-set ( LUA_LPEG
-    lpeg/lpcap.c
-    lpeg/lpcode.c
-    lpeg/lpprint.c
-    lpeg/lptree.c
-    lpeg/lpvm.c
-)
-
-set ( LUA_SPROTO 
-    sproto/lsproto.c
-    sproto/sproto.c
-)
-
 set ( XLUA_CORE
     i64lib.c
     perflib.c
@@ -135,8 +167,6 @@ macro(source_group_by_dir proj_dir source_files)
 endmacro(source_group_by_dir)
 
 source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_SOCKET)
-source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_LPEG)
-source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_SPROTO)
 source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_CORE)
 source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_LIB)
 source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} XLUA_CORE)
@@ -148,8 +178,6 @@ if (APPLE)
            ${LUA_CORE}
            ${LUA_LIB}
            ${LUA_SOCKET}
-           ${LUA_LPEG}
-           ${LUA_SPROTO}
            ${XLUA_CORE}
            ${THIRDPART_SRC}
         )
@@ -159,8 +187,6 @@ if (APPLE)
             ${LUA_CORE}
             ${LUA_LIB}
             ${LUA_SOCKET}
-            ${LUA_LPEG}
-            ${LUA_SPROTO}
             ${XLUA_CORE}
             ${THIRDPART_SRC}
         )
@@ -173,8 +199,6 @@ else ( )
         ${LUA_CORE}
         ${LUA_LIB}
         ${LUA_SOCKET}
-        ${LUA_LPEG}
-        ${LUA_SPROTO}
         ${XLUA_CORE}
         ${THIRDPART_SRC}
     )
