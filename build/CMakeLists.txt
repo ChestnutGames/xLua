@@ -98,6 +98,19 @@ else ( )
     list (APPEND LUA_SOCKET luasocket/usocket.c)
 endif ( )
 
+set ( LUA_LPEG
+    lpeg/lpcap.c
+    lpeg/lpcode.c
+    lpeg/lpprint.c
+    lpeg/lptree.c
+    lpeg/lpvm.c
+)
+
+set ( LUA_SPROTO 
+    sproto/lsproto.c
+    sproto/sproto.c
+)
+
 set ( XLUA_CORE
     i64lib.c
     perflib.c
@@ -122,6 +135,8 @@ macro(source_group_by_dir proj_dir source_files)
 endmacro(source_group_by_dir)
 
 source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_SOCKET)
+source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_LPEG)
+source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_SPROTO)
 source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_CORE)
 source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_LIB)
 source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} XLUA_CORE)
@@ -133,6 +148,8 @@ if (APPLE)
            ${LUA_CORE}
            ${LUA_LIB}
            ${LUA_SOCKET}
+           ${LUA_LPEG}
+           ${LUA_SPROTO}
            ${XLUA_CORE}
            ${THIRDPART_SRC}
         )
@@ -142,6 +159,8 @@ if (APPLE)
             ${LUA_CORE}
             ${LUA_LIB}
             ${LUA_SOCKET}
+            ${LUA_LPEG}
+            ${LUA_SPROTO}
             ${XLUA_CORE}
             ${THIRDPART_SRC}
         )
@@ -154,6 +173,8 @@ else ( )
         ${LUA_CORE}
         ${LUA_LIB}
         ${LUA_SOCKET}
+        ${LUA_LPEG}
+        ${LUA_SPROTO}
         ${XLUA_CORE}
         ${THIRDPART_SRC}
     )
