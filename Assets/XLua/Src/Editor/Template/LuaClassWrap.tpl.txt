@@ -14,8 +14,41 @@ using System.Collections.Generic;
 <%
 require "TemplateCommon"
 
-local OpNameMap = {op_Addition = "__AddMeta", op_Subtraction = "__SubMeta", op_Multiply = "__MulMeta", op_Division = "__DivMeta", op_Equality = "__EqMeta", op_UnaryNegation = "__UnmMeta", op_LessThan="__LTMeta", op_LessThanOrEqual="__LEMeta", op_Modulus="__ModMeta"}
-local OpCallNameMap = {op_Addition = "+", op_Subtraction = "-", op_Multiply = "*", op_Division = "/", op_Equality = "==", op_UnaryNegation = "-", op_LessThan="<", op_LessThanOrEqual="<=", op_Modulus="%"}
+local OpNameMap = {
+    op_Addition = "__AddMeta",
+	op_Subtraction = "__SubMeta",
+	op_Multiply = "__MulMeta",
+	op_Division = "__DivMeta",
+	op_Equality = "__EqMeta",
+	op_UnaryNegation = "__UnmMeta",
+	op_LessThan = "__LTMeta",
+	op_LessThanOrEqual = "__LEMeta",
+	op_Modulus = "__ModMeta",
+    op_BitwiseAnd = "__BandMeta",
+    op_BitwiseOr = "__BorMeta",
+    op_ExclusiveOr = "__BxorMeta",
+    op_OnesComplement = "__BnotMeta",
+    op_LeftShift = "__ShlMeta",
+    op_RightShift = "__ShrMeta",
+}
+
+local OpCallNameMap = {
+    op_Addition = "+",
+	op_Subtraction = "-",
+	op_Multiply = "*",
+	op_Division = "/",
+	op_Equality = "==",
+	op_UnaryNegation = "-",
+	op_LessThan = "<",
+	op_LessThanOrEqual = "<=",
+	op_Modulus = "%",
+	op_BitwiseAnd = "&",
+    op_BitwiseOr = "|",
+    op_ExclusiveOr = "^",
+    op_OnesComplement = "~",
+    op_LeftShift = "<<",
+    op_RightShift = ">>",
+}
 
 local obj_method_count = 0
 local obj_getter_count = 0
@@ -61,11 +94,21 @@ ForEachCsList(setters, function(setter)
     end 
 end)
 
+local generic_arg_list = ""
+if type.IsGenericTypeDefinition then
+    generic_arg_list = "<"
+	ForEachCsList(type:GetGenericArguments(), function(generic_arg, gai)
+	    if gai ~= 0 then generic_arg_list = generic_arg_list .. ", " end
+		generic_arg_list = generic_arg_list .. generic_arg.Name
+	end)
+	generic_arg_list = generic_arg_list .. ">"
+end
+
 %>
 namespace XLua.CSObjectWrap
 {
     using Utils = XLua.Utils;
-    public class <%=CSVariableName(type)%>Wrap
+    public class <%=CSVariableName(type)%>Wrap<%=generic_arg_list%>
     {
         public static void __Register(RealStatePtr L)
         {
@@ -117,14 +160,19 @@ namespace XLua.CSObjectWrap
 					end
 					local def_count = constructor_def_vals[ci]
 					local param_count = parameters.Length
+					local in_num = CalcCsList(parameters, function(p) return p.IsIn or not p.IsOut end)
                     local out_num = CalcCsList(parameters, function(p) return p.IsOut or p.ParameterType.IsByRef end)
 					local real_param_count = param_count - def_count
                     local has_v_params = param_count > 0 and IsParams(parameters[param_count - 1])
-				%>if(LuaAPI.lua_gettop(L) <%=has_v_params and ">=" or "=="%> <%=parameters.Length + 1 - def_count - (has_v_params and 1 or 0)%><%ForEachCsList(parameters, function(parameter, pi) 
+					local in_pos = 0
+				%>if(LuaAPI.lua_gettop(L) <%=has_v_params and ">=" or "=="%> <%=in_num + 1 - def_count - (has_v_params and 1 or 0)%><%ForEachCsList(parameters, function(parameter, pi) 
                 if pi >= real_param_count then return end 
                 local parameterType = parameter.ParameterType
                 if has_v_params and pi == param_count - 1 then  parameterType = parameterType:GetElementType() end
-                %> && <%=GetCheckStatement(parameterType, pi+2, has_v_params and pi == param_count - 1)%><% end)%>)
+				if parameter.IsIn or not parameter.IsOut then in_pos = in_pos + 1
+                %> && <%=GetCheckStatement(parameterType, in_pos+1, has_v_params and pi == param_count - 1)%><% 
+				end
+				end)%>)
 				{
 					<%ForEachCsList(parameters, function(parameter, pi) 
                     if pi >= real_param_count then return end 
@@ -266,7 +314,7 @@ namespace XLua.CSObjectWrap
         static int <%=OpNameMap[operator.Name]%>(RealStatePtr L)
         {
             ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-            <% if operator.Name ~= "op_UnaryNegation" then 
+            <% if operator.Name ~= "op_UnaryNegation" and operator.Name ~= "op_OnesComplement"  then 
                 ForEachCsList(operator.Overloads, function(overload)
                 local left_param = overload:GetParameters()[0]
                 local right_param = overload:GetParameters()[1]
