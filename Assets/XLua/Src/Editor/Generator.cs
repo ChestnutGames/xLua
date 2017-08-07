@@ -974,14 +974,31 @@ namespace CSObjectWrapEditor
         {
             var enum_types = LuaCallCSharp.Where(type => type.IsEnum).Distinct();
 
-#if XLUA_GENERAL
-            //TODO: 后续支持位运算重载后，这块可以去掉
-            luaenv.Global.Set("g_enum_get_fields_flag", BindingFlags.Static | BindingFlags.Public);
-#endif
             GenEnumWrap(enum_types, GeneratorConfig.common_path);
-#if XLUA_GENERAL
-            luaenv.Global.Set("g_enum_get_fields_flag", (object)null);
-#endif
+        }
+
+        static MethodInfo makeGenericMethodIfNeeded(MethodInfo method)
+        {
+            if (!method.ContainsGenericParameters) return method;
+
+            var genericArguments = method.GetGenericArguments();
+            var constraintedArgumentTypes = new Type[genericArguments.Length];
+            for (var i = 0; i < genericArguments.Length; i++)
+            {
+                var argumentType = genericArguments[i];
+                var parameterConstraints = argumentType.GetGenericParameterConstraints();
+                Type parameterConstraint = parameterConstraints[0];
+                foreach(var type in argumentType.GetGenericParameterConstraints())
+                {
+                    if (parameterConstraint.IsAssignableFrom(type))
+                    {
+                        parameterConstraint = type;
+                    }
+                }
+                
+                constraintedArgumentTypes[i] = parameterConstraint;
+            }
+            return method.MakeGenericMethod(constraintedArgumentTypes);
         }
 
         public static void GenLuaRegister(bool minimum = false)
@@ -995,8 +1012,9 @@ namespace CSObjectWrapEditor
             var extension_methods = from t in ReflectionUse
                                     where t.IsDefined(typeof(ExtensionAttribute), false)
                                     from method in t.GetMethods(BindingFlags.Static | BindingFlags.Public)
-                                    where !method.ContainsGenericParameters && method.IsDefined(typeof(ExtensionAttribute), false)
-                                    select method;
+                                    where method.IsDefined(typeof(ExtensionAttribute), false)
+                                    where !method.ContainsGenericParameters || isSupportedGenericMethod(method)
+                                    select makeGenericMethodIfNeeded(method);
             GenOne(typeof(DelegateBridgeBase), (type, type_info) =>
             {
 #if GENERIC_SHARING
