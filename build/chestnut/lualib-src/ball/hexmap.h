@@ -5,15 +5,7 @@
 extern "C" {
 #endif
 
-#include <config.h>
-
-#ifdef FIXEDPT
 #include <cstdafx.h>
-#include <fixedptmath3d.h>
-#else
-#include <cstdafx.h>
-#include <stdint.h>
-#endif // FIXEDPT
 
 #define MAX_PATH_NUM 20
 
@@ -58,13 +50,13 @@ struct AxialCoord {
 
 struct HexMap;
 
-struct HexAStar {
+struct HexWaypoint {
 	int f;
 	int g;
 	int h;
 	int free;
 	struct Hex *hex;
-	struct HexAStar *next, *prev;
+	struct HexWaypoint *next, *prev;
 };
 
 /*
@@ -135,7 +127,7 @@ static int HexComp(struct Hex *lhs, struct Hex *rhs) {
 	/*return left->pathState.*/
 }
 
-struct HexMapAStar {
+struct HexWaypointHead {
 	int pathid;
 	int free;
 	struct vector3   startPos;
@@ -143,16 +135,16 @@ struct HexMapAStar {
 	struct Hex      *nextHex;
 	struct Hex      *exitHex;
 	binary_heap_t   *open;
-	struct HexAStar *closed;
+	struct HexWaypoint *closed;
 };
 
 struct HexMap {
 	struct Layout layout;
-	struct HexMapAStar   pathState[MAX_PATH_NUM];
+	struct HexWaypointHead   pathState[MAX_PATH_NUM];
 
 	struct Hex *hash;     // hash
 	struct Hex *hexhead;  // pool
-	struct HexAStar *hexshead;
+	struct HexWaypoint *hexshead;
 };
 
 
@@ -176,11 +168,11 @@ hexmap_create_hex(struct HexMap *self);
 void              
 hexmap_release_hex(struct HexMap *self, struct Hex *h);
 
-struct HexAStar * 
+struct HexWaypoint * 
 hexmap_create_hexastar(struct HexMap *self);
 
 void              
-hexmap_release_hexastar(struct HexMap *self, struct HexAStar *h);
+hexmap_release_hexastar(struct HexMap *self, struct HexWaypoint *h);
 
 struct Hex *    
 hexmap_find_hex(struct HexMap *self, struct CubeCoord coord);

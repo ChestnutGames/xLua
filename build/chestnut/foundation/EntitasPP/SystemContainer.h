@@ -6,6 +6,7 @@
 
 #include "ISystem.h"
 #include <vector>
+#include <unordered_map>
 
 namespace Chestnut {
 namespace EntitasPP
@@ -28,9 +29,11 @@ public:
 	void ClearReactiveSystems();
 
 private:
+	
 	std::vector<std::shared_ptr<IInitializeSystem>> mInitializeSystems;
 	std::vector<std::shared_ptr<IExecuteSystem>> mExecuteSystems;
 	std::vector<std::shared_ptr<IFixedExecuteSystem>> mFixedExecuteSystems;
+	
 };
 
 template <typename T>

@@ -5,14 +5,19 @@
 
 namespace Chestnut {
 namespace Ball {
-class JoinSystem : EntitasPP::ISystem, EntitasPP::ISetPoolSystem, Chestnut::Singleton::Singleton<JoinSystem>
-{
+class JoinSystem : public EntitasPP::ISystem, public EntitasPP::ISetPoolSystem {
 public:
+	JoinSystem();
 
-	virtual void SetPool(EntitasPP::Pool* pool) override;
+	int SystemType();
+
+	void SetPool(EntitasPP::Pool* pool);
 
 	void Join(int index);
 
+	void Leave(int index);
+
+protected:
 	EntitasPP::Pool *pool;
 
 };

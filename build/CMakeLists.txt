@@ -82,14 +82,16 @@ set ( BALL_SRC
     chestnut/foundation/EntitasPP/Entity.cpp
     chestnut/foundation/EntitasPP/Group.cpp
     chestnut/foundation/EntitasPP/GroupObserver.cpp
+    chestnut/foundation/EntitasPP/ISystem.cpp
     chestnut/foundation/EntitasPP/Matcher.cpp
     chestnut/foundation/EntitasPP/Pool.cpp
     chestnut/foundation/EntitasPP/ReactiveSystem.cpp
     chestnut/foundation/EntitasPP/SystemContainer.cpp
     chestnut/foundation/src/binaryheap.c
+    chestnut/lualib-src/ball/lua-ball.cpp
     chestnut/lualib-src/ball/hexmap.cpp
     chestnut/lualib-src/ball/JoinSystem.cpp
-    chestnut/lualib-src/ball/lua-ball.cpp
+    chestnut/lualib-src/ball/IndexSystem.cpp
     chestnut/lualib-src/ball/MapSystem.cpp
     chestnut/lualib-src/ball/MoveSystem.cpp
     chestnut/lualib-src/ball/PositionComponent.cpp

@@ -10,21 +10,31 @@
 #include <vector>
 
 namespace Chestnut {
-namespace EntitasPP
-{
+namespace EntitasPP {
 class Pool;
 
-class ISystem
-{
+enum SystemType {
+	ST_BASE = 1 << 0,
+	ST_SETPOOL = 1 << 1,
+	ST_INIT = 1 << 2,
+	ST_EXEC = 1 << 3,
+	ST_FIXEDEXE = 1 << 4,
+
+};
+
+class ISystem {
+	friend class SystemContainer;
+	static int _systemid;
 protected:
-	ISystem() = default;
+	ISystem() { _systemid++; }
 
 public:
 	virtual ~ISystem() = default;
+
+	virtual int SystemType();
 };
 
-class ISetPoolSystem
-{
+class ISetPoolSystem {
 protected:
 	ISetPoolSystem() = default;
 
@@ -34,8 +44,7 @@ public:
 	virtual void SetPool(Pool* pool) = 0;
 };
 
-class IInitializeSystem
-{
+class IInitializeSystem {
 protected:
 	IInitializeSystem() = default;
 
@@ -45,8 +54,7 @@ public:
 	virtual void Initialize() = 0;
 };
 
-class IExecuteSystem : public ISystem
-{
+class IExecuteSystem : public ISystem {
 protected:
 	IExecuteSystem() = default;
 
@@ -56,8 +64,7 @@ public:
 	virtual void Execute() = 0;
 };
 
-class IFixedExecuteSystem : public ISystem
-{
+class IFixedExecuteSystem : public ISystem {
 protected:
 	IFixedExecuteSystem() = default;
 
@@ -67,8 +74,7 @@ public:
 	virtual void FixedExecute() = 0;
 };
 
-class IReactiveExecuteSystem : public ISystem
-{
+class IReactiveExecuteSystem : public ISystem {
 protected:
 	IReactiveExecuteSystem() = default;
 
@@ -78,24 +84,21 @@ public:
 	virtual void Execute(std::vector<EntityPtr> entities) = 0;
 };
 
-class IReactiveSystem : public IReactiveExecuteSystem
-{
+class IReactiveSystem : public IReactiveExecuteSystem {
 public:
 	virtual ~IReactiveSystem() = default;
 
 	TriggerOnEvent trigger;
 };
 
-class IMultiReactiveSystem : public IReactiveExecuteSystem
-{
+class IMultiReactiveSystem : public IReactiveExecuteSystem {
 public:
 	virtual ~IMultiReactiveSystem() = default;
 
 	std::vector<TriggerOnEvent> triggers;
 };
 
-class IEnsureComponents
-{
+class IEnsureComponents {
 protected:
 	IEnsureComponents() = default;
 
@@ -103,8 +106,7 @@ public:
 	Matcher ensureComponents;
 };
 
-class IExcludeComponents
-{
+class IExcludeComponents {
 protected:
 	IExcludeComponents() = default;
 
@@ -112,8 +114,7 @@ public:
 	Matcher excludeComponents;
 };
 
-class IClearReactiveSystem
-{
+class IClearReactiveSystem {
 protected:
 	IClearReactiveSystem() = default;
 };

@@ -247,9 +247,11 @@ hex_toindex(struct Hex *self) {
 //}
 
 struct HexMap *
-	hexmap_create_from_plist(const char *src, int len) {
+hexmap_create_from_plist(const char *src, int len) {
 	plist_t pl;
 	plist_from_xml(src, len, &pl);
+
+	plist_t value = plist_dict_get_item(pl, "");
 
 	/*plist_dic
 	plist_dict_get_item(p, "name");*/
@@ -340,9 +342,9 @@ hexmap_release_hex(struct HexMap *self, struct Hex *h) {
 	LL_APPEND(self->hexhead, h);
 }
 
-struct HexAStar *
+struct HexWaypoint *
 	hexmap_create_hexastar(struct HexMap *self) {
-	struct HexAStar *elt, *res;
+	struct HexWaypoint *elt, *res;
 	int count;
 	LL_COUNT(self->hexshead, elt, count);
 	if (count > 0)
@@ -351,12 +353,12 @@ struct HexAStar *
 		LL_DELETE(self->hexshead, self->hexshead->next);
 		return res;
 	}
-	res = (struct HexAStar *)malloc(sizeof(*res));
+	res = (struct HexWaypoint *)malloc(sizeof(*res));
 	return res;
 }
 
 void
-hexmap_release_hexastar(struct HexMap *self, struct HexAStar *h) {
+hexmap_release_hexastar(struct HexMap *self, struct HexWaypoint *h) {
 	assert(self != NULL && h != NULL);
 	LL_APPEND(self->hexshead, h);
 }
@@ -466,13 +468,13 @@ hexmap_h(struct HexMap *self, struct vector3 startPos, struct vector3 exitPos) {
 
 static int
 hexastar_compare(void *lhs, void *rhs) {
-	return (((struct HexAStar *)(lhs))->f < ((struct HexAStar *)(rhs))->f);
+	return (((struct HexWaypoint *)(lhs))->f < ((struct HexWaypoint *)(rhs))->f);
 }
 
 static int
 hexastar_equal(void *lhs, void *rhs) {
 
-	if (((struct HexAStar *)lhs)->hex == ((struct HexAStar *)rhs)->hex && ((struct HexAStar *)lhs)->hex != NULL)
+	if (((struct HexWaypoint *)lhs)->hex == ((struct HexWaypoint *)rhs)->hex && ((struct HexWaypoint *)lhs)->hex != NULL)
 	{
 		return 0;
 	}
@@ -492,7 +494,7 @@ hexmap_findpath(struct HexMap *self, struct vector3 startPos, struct vector3 exi
 	binary_heap_new(&self->pathState[pathid].open, hexastar_compare);
 	self->pathState[pathid].closed = NULL;
 
-	struct HexAStar *tmp = hexmap_create_hexastar(self);
+	struct HexWaypoint *tmp = hexmap_create_hexastar(self);
 	tmp->g = 0;
 	tmp->h = hexmap_h(self, startPos, exitPos);
 	tmp->f = tmp->g + tmp->h;
@@ -506,7 +508,7 @@ hexmap_findpath(struct HexMap *self, struct vector3 startPos, struct vector3 exi
 }
 
 static void hexastar_visit_free(void *h) {
-	struct HexAStar *ptr = (struct HexAStar *)(h);
+	struct HexWaypoint *ptr = (struct HexWaypoint *)(h);
 	if (ptr)
 	{
 		hexmap_release_hexastar(ptr->hex->map, ptr);
@@ -518,17 +520,17 @@ hexmap_findpath_update(struct HexMap *self, int pathid, struct Hex **h) {
 	int i = 0;
 	for (; i < MAX_PATH_NUM; ++i)
 	{
-		struct HexMapAStar *path = &self->pathState[i];
+		struct HexWaypointHead *path = &self->pathState[i];
 		if (path->free == 1) // Õ¼ÓÃ
 		{
 			if (binary_heap_size(path->open) > 0)
 			{
-				struct HexAStar *top = NULL;
+				struct HexWaypoint *top = NULL;
 				binary_heap_peek(path->open, (void **)&top);
 				LL_APPEND(path->closed, top);
 
 				assert(top != NULL);
-				struct HexAStar *elt, etmp;
+				struct HexWaypoint *elt, etmp;
 				int j = 0;
 				for (; j < 6; j++) {
 					if (top->hex->neighbor[i] == NULL) continue;
@@ -548,7 +550,7 @@ hexmap_findpath_update(struct HexMap *self, int pathid, struct Hex **h) {
 					}
 
 
-					struct HexAStar *tmp = hexmap_create_hexastar(self);
+					struct HexWaypoint *tmp = hexmap_create_hexastar(self);
 					int cost = hexmap_h(self, top->hex->pos, top->hex->neighbor[i]->pos);
 					tmp->g = top->g + cost;
 					tmp->h = hexmap_h(self, top->hex->neighbor[i]->pos, self->pathState[pathid].exitPos);
@@ -565,12 +567,12 @@ hexmap_findpath_update(struct HexMap *self, int pathid, struct Hex **h) {
 
 int
 hexmap_findpath_clean(struct HexMap *self, int pathid) {
-	struct HexMapAStar *path = &self->pathState[pathid];
+	struct HexWaypointHead *path = &self->pathState[pathid];
 
 	binary_heap_traverse(path->open, hexastar_visit_free);
 	binary_heap_destroy(path->open);
 
-	struct HexAStar *elt, *tmp, etmp;
+	struct HexWaypoint *elt, *tmp, etmp;
 	LL_FOREACH_SAFE(path->closed, elt, tmp) {
 		hexmap_release_hexastar(self, elt);
 	}

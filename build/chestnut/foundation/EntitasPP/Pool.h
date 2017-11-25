@@ -38,8 +38,11 @@ public:
 	auto GetReusableEntitiesCount() const -> unsigned int;
 	auto GetRetainedEntitiesCount() const -> unsigned int;
 
+	auto Test() -> void;
+	auto CreateSystemPtr(ISystem *ptr)->std::shared_ptr<ISystem>;
 	auto CreateSystem(std::shared_ptr<ISystem> system)->std::shared_ptr<ISystem>;
 	template <typename T> inline auto CreateSystem()->std::shared_ptr<ISystem>;
+	
 
 	using PoolChanged = Delegate<void(Pool* pool, EntityPtr entity)>;
 	using GroupChanged = Delegate<void(Pool* pool, std::shared_ptr<Group> group)>;

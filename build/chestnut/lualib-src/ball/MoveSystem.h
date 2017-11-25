@@ -7,9 +7,12 @@ namespace Chestnut {
 namespace Ball {
 
 class MoveSystem :
-	public EntitasPP::ISystem
+	public EntitasPP::ISystem, public EntitasPP::IExecuteSystem
 {
 public:
+	int SystemType();
+
+	virtual void Execute();
 
 };
 

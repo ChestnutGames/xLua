@@ -84,7 +84,7 @@ namespace
 #define FOR_EACH(MODIFIER,...) GET_MACRO(__VA_ARGS__, FUNC_6, FUNC_5, FUNC_4, FUNC_3, FUNC_2, FUNC_1)(MODIFIER, __VA_ARGS__)
 
 #define COMPONENT_GET_TYPE_ID(COMPONENT_CLASS) EntitasPP::ComponentTypeId::Get<COMPONENT_CLASS>()
-#define Matcher_AllOf(...) (EntitasPP::Matcher)EntitasPP::Matcher::AllOf(std::vector<EntitasPP::ComponentId>({ FOR_EACH(COMPONENT_GET_TYPE_ID, __VA_ARGS__) }))
-#define Matcher_AnyOf(...) (EntitasPP::Matcher)EntitasPP::Matcher::AnyOf(std::vector<EntitasPP::ComponentId>({ FOR_EACH(COMPONENT_GET_TYPE_ID, __VA_ARGS__) }))
-#define Matcher_NoneOf(...) (EntitasPP::Matcher)EntitasPP::Matcher::NoneOf(std::vector<EntitasPP::ComponentId>({ FOR_EACH(COMPONENT_GET_TYPE_ID, __VA_ARGS__) }))
+#define Matcher_AllOf(...) (Chestnut::EntitasPP::Matcher)Chestnut::EntitasPP::Matcher::AllOf(std::vector<Chestnut::EntitasPP::ComponentId>({ FOR_EACH(COMPONENT_GET_TYPE_ID, __VA_ARGS__) }))
+#define Matcher_AnyOf(...) (Chestnut::EntitasPP::Matcher)Chestnut::EntitasPP::Matcher::AnyOf(std::vector<Chestnut::EntitasPP::ComponentId>({ FOR_EACH(COMPONENT_GET_TYPE_ID, __VA_ARGS__) }))
+#define Matcher_NoneOf(...) (Chestnut::EntitasPP::Matcher)Chestnut::EntitasPP::Matcher::NoneOf(std::vector<Chestnut::EntitasPP::ComponentId>({ FOR_EACH(COMPONENT_GET_TYPE_ID, __VA_ARGS__) }))
 }

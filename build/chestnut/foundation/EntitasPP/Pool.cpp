@@ -255,6 +255,14 @@ auto Pool::GetRetainedEntitiesCount() const -> unsigned int
 	return mRetainedEntities.size();
 }
 
+auto Pool::Test() -> void {
+	printf("hello test");
+}
+
+auto Pool::CreateSystemPtr(ISystem *ptr)->std::shared_ptr<ISystem> 	{
+	return	CreateSystem(std::dynamic_pointer_cast<ISystem>(std::shared_ptr<ISystem>(ptr)));
+}
+
 auto Pool::CreateSystem(std::shared_ptr<ISystem> system) -> std::shared_ptr<ISystem>
 {
 	if (std::dynamic_pointer_cast<ISetPoolSystem>(system) != nullptr)
