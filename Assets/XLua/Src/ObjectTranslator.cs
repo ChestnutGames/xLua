@@ -355,15 +355,19 @@ namespace XLua
             {
                 return null;
             }
-            
+
             // get by parameters
             MethodInfo delegateMethod = delegateType.GetMethod("Invoke");
             var methods = bridge.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-            for(int i = 0; i < methods.Length; i++)
+            for (int i = 0; i < methods.Length; i++)
             {
                 if (!methods[i].IsConstructor && Utils.IsParamsMatch(delegateMethod, methods[i]))
                 {
+#if !UNITY_WSA || UNITY_EDITOR
                     return Delegate.CreateDelegate(delegateType, bridge, methods[i]);
+#else
+                    return methods[i].CreateDelegate(delegateType, bridge); 
+#endif
                 }
             }
 
@@ -564,6 +568,9 @@ namespace XLua
             LuaAPI.lua_rawset(L, -3);
             LuaAPI.xlua_pushasciistring(L, "tofunction");
             LuaAPI.lua_pushstdcallcfunction(L, StaticLuaCallbacks.ToFunction);
+            LuaAPI.lua_rawset(L, -3);
+            LuaAPI.xlua_pushasciistring(L, "release");
+            LuaAPI.lua_pushstdcallcfunction(L, StaticLuaCallbacks.ReleaseCsObject);
             LuaAPI.lua_rawset(L, -3);
             LuaAPI.lua_pop(L, 1);
 
@@ -1211,6 +1218,15 @@ namespace XLua
 		internal object FastGetCSObj(RealStatePtr L,int index)
 		{
             return getCsObj(L, index, LuaAPI.xlua_tocsobj_fast(L,index));
+        }
+
+        internal void ReleaseCSObj(RealStatePtr L, int index)
+        {
+            int udata = LuaAPI.xlua_tocsobj_safe(L, index);
+            if (udata != -1)
+            {
+                objects.Replace(udata, null);
+            }
         }
 
         List<LuaCSFunction> fix_cs_functions = new List<LuaCSFunction>();
