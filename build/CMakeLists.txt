@@ -76,37 +76,54 @@ list ( APPEND THIRDPART_INC lpeg )
 set ( THIRDPART_SRC ${THIRDPART_SRC} ${LPEG_SRC})
 #end lpeg
 
-#begin ball
-set ( BALL_SRC
-    chestnut/foundation/EntitasPP/ComponentTypeId.cpp
-    chestnut/foundation/EntitasPP/Entity.cpp
-    chestnut/foundation/EntitasPP/Group.cpp
-    chestnut/foundation/EntitasPP/GroupObserver.cpp
-    chestnut/foundation/EntitasPP/ISystem.cpp
-    chestnut/foundation/EntitasPP/Matcher.cpp
-    chestnut/foundation/EntitasPP/Pool.cpp
-    chestnut/foundation/EntitasPP/ReactiveSystem.cpp
-    chestnut/foundation/EntitasPP/SystemContainer.cpp
-    chestnut/foundation/src/binaryheap.c
-    chestnut/lualib-src/ball/lua-ball.cpp
-    chestnut/lualib-src/ball/hexmap.cpp
-    chestnut/lualib-src/ball/JoinSystem.cpp
-    chestnut/lualib-src/ball/IndexSystem.cpp
-    chestnut/lualib-src/ball/MapSystem.cpp
-    chestnut/lualib-src/ball/MoveSystem.cpp
-    chestnut/lualib-src/ball/PositionComponent.cpp
+#begin crypt
+set ( CRYPT_SRC
+    crypt/lsha1.c
+    crypt/lua-crypt.c
 )
 set_property(
-    SOURCE ${BALL_SRC}
+    SOURCE ${CRYPT_SRC}
     APPEND
     PROPERTY COMPILE_DEFINITIONS
     LUA_LIB
 )
-list ( APPEND THIRDPART_INC chestnut/foundation )
-list ( APPEND THIRDPART_INC chestnut/foundation/include )
-list ( APPEND THIRDPART_INC chestnut/include )
-set ( THIRDPART_SRC ${THIRDPART_SRC} ${BALL_SRC})
-#end ball
+list ( APPEND THIRDPART_INC crypt )
+set ( THIRDPART_SRC ${THIRDPART_SRC} ${CRYPT_SRC} )
+#end crypt
+
+#begin chestnut
+set ( CHESTNUT_SRC
+#    chestnut/foundation/EntitasPP/ComponentTypeId.cpp
+#    chestnut/foundation/EntitasPP/Entity.cpp
+#    chestnut/foundation/EntitasPP/Group.cpp
+#    chestnut/foundation/EntitasPP/GroupObserver.cpp
+#    chestnut/foundation/EntitasPP/ISystem.cpp
+#    chestnut/foundation/EntitasPP/Matcher.cpp
+#    chestnut/foundation/EntitasPP/Pool.cpp
+#    chestnut/foundation/EntitasPP/ReactiveSystem.cpp
+#    chestnut/foundation/EntitasPP/SystemContainer.cpp
+#    chestnut/foundation/src/binaryheap.c
+#    chestnut/lualib-src/ball/lua-ball.cpp
+#    chestnut/lualib-src/ball/hexmap.cpp
+#    chestnut/lualib-src/ball/JoinSystem.cpp
+#    chestnut/lualib-src/ball/IndexSystem.cpp
+#    chestnut/lualib-src/ball/MapSystem.cpp
+#    chestnut/lualib-src/ball/MoveSystem.cpp
+#    chestnut/lualib-src/ball/PositionComponent.cpp
+	chestnut/lualib-src/lua-queue.c
+	chestnut/lualib-src/lua-stack.c
+)
+set_property(
+    SOURCE ${CHESTNUT_SRC}
+    APPEND
+    PROPERTY COMPILE_DEFINITIONS
+    LUA_LIB
+)
+#list ( APPEND THIRDPART_INC chestnut/foundation )
+#list ( APPEND THIRDPART_INC chestnut/foundation/include )
+#list ( APPEND THIRDPART_INC chestnut/include )
+set ( THIRDPART_SRC ${THIRDPART_SRC} ${CHESTNUT_SRC})
+#end chestnut
 
 if (USING_LUAJIT)
 	
