@@ -76,20 +76,38 @@ list ( APPEND THIRDPART_INC lpeg )
 set ( THIRDPART_SRC ${THIRDPART_SRC} ${LPEG_SRC})
 #end lpeg
 
-#begin crypt
-set ( CRYPT_SRC
-    crypt/lsha1.c
-    crypt/lua-crypt.c
+#begin xluasocket
+set ( XLUASOCKET_SRC
+    xluasocket/lxluasocket.c
+    xluasocket/ringbuf.c
+    xluasocket/write_buffer.c
 )
 set_property(
-    SOURCE ${CRYPT_SRC}
+    SOURCE ${XLUASOCKET_SRC}
     APPEND
     PROPERTY COMPILE_DEFINITIONS
     LUA_LIB
 )
-list ( APPEND THIRDPART_INC crypt )
-set ( THIRDPART_SRC ${THIRDPART_SRC} ${CRYPT_SRC} )
-#end crypt
+list ( APPEND THIRDPART_INC xluasocket )
+set ( THIRDPART_SRC ${THIRDPART_SRC} ${XLUASOCKET_SRC} )
+#end xluasocket
+
+#begin skynet
+set ( SKYNET_SRC
+    skynet/lsha1.c
+    skynet/lua-crypt.c
+    skynet/lua-timer.c
+    skynet/skynet_timer.c
+)
+set_property(
+    SOURCE ${SKYNET_SRC}
+    APPEND
+    PROPERTY COMPILE_DEFINITIONS
+    LUA_LIB
+)
+list ( APPEND THIRDPART_INC skynet )
+set ( THIRDPART_SRC ${THIRDPART_SRC} ${SKYNET_SRC} )
+#end skynet
 
 #begin chestnut
 set ( CHESTNUT_SRC
@@ -110,8 +128,11 @@ set ( CHESTNUT_SRC
 #    chestnut/lualib-src/ball/MapSystem.cpp
 #    chestnut/lualib-src/ball/MoveSystem.cpp
 #    chestnut/lualib-src/ball/PositionComponent.cpp
-	chestnut/lualib-src/lua-queue.c
-	chestnut/lualib-src/lua-stack.c
+	chestnut/lua-queue.c
+	chestnut/lua-stack.c
+    chestnut/lua-array.c
+    chestnut/lua-vector.c
+    chestnut/lua-math.c
 )
 set_property(
     SOURCE ${CHESTNUT_SRC}
