@@ -109,6 +109,21 @@ list ( APPEND THIRDPART_INC skynet )
 set ( THIRDPART_SRC ${THIRDPART_SRC} ${SKYNET_SRC} )
 #end skynet
 
+#begin MIS
+set ( MIS_SRC
+    md5/md5.c
+    random/random.c
+    timer/timer.c
+)
+set_property(
+    SOURCE ${MIS_SRC}
+    APPEND
+    PROPERTY COMPILE_DEFINITIONS
+    LUA_LIB
+)
+set ( THIRDPART_SRC ${THIRDPART_SRC} ${MIS_SRC} )
+#end skynet
+
 #begin chestnut
 set ( CHESTNUT_SRC
 #    chestnut/foundation/EntitasPP/ComponentTypeId.cpp
