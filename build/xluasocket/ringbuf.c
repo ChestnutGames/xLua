@@ -59,13 +59,15 @@ ringbuf_end(const ringbuf_t *rb) {
 static int
 ringbuf_ext(ringbuf_t *rb) {
 	size_t capacity = ringbuf_capacity(rb);
-	size_t size = capacity * 2 + 1;
+	size_t realsize = capacity * 2 + 1;
+	size_t newrealsize = capacity * 2 * 2 + 1;
+	size_t newsize = capacity * 2 + 1;
 	uint8_t *oldbuf = rb->buf;
 	/*if (REALLOC(oldbuf, size * 2) != NULL) {
 		rb->size = size;
 		return 0;
 	}*/
-	uint8_t *buf = MALLOC(size * 2);
+	uint8_t *buf = MALLOC(newrealsize);
 	if (buf == NULL) {
 		return -1;
 	}
@@ -73,20 +75,20 @@ ringbuf_ext(ringbuf_t *rb) {
 		memcpy(buf, oldbuf, rb->size);
 		rb->head = buf + (rb->head - oldbuf);
 		rb->tail = buf + (rb->tail - oldbuf);
-		rb->size = size;
+		rb->size = newsize;
 		rb->buf = buf;
 	} else {
 
 		const uint8_t *backend = ringbuf_end(rb);
 		int n = backend - rb->tail;
-		memcpy(buf, rb->tail, n);
-		uint8_t *head = buf + n;
+		memcpy(buf + 1, rb->tail, n);
+		uint8_t *head = buf + 1 + n;
 		memcpy(head, rb->buf, rb->head - rb->buf);
 		head = head + (rb->head - rb->buf);
 		rb->head = head;
 		rb->tail = buf;
 		rb->buf = buf;
-		rb->size = size;
+		rb->size = newsize;
 	}
 	free(oldbuf);
 	return 0;
@@ -94,12 +96,13 @@ ringbuf_ext(ringbuf_t *rb) {
 
 ringbuf_t *
 ringbuf_new(size_t capacity) {
-	ringbuf_t *rb = malloc(sizeof(struct ringbuf));
+	ringbuf_t *rb = MALLOC(sizeof(struct ringbuf));
 	if (rb) {
 
 		/* One byte is used for detecting the full condition. */
 		rb->size = capacity + 1;
-		rb->buf = malloc(rb->size * 2);
+		size_t realsize = capacity * 2 + 1;
+		rb->buf = MALLOC(realsize);
 		if (rb->buf)
 			ringbuf_reset(rb);
 		else {
@@ -284,24 +287,24 @@ ringbuf_read_fd(ringbuf_t *rb, int fd, size_t hint_max) {
 int
 ringbuf_read_string(ringbuf_t *rb, uint8_t **out, int *size) {
 	if (ringbuf_bytes_used(rb) < 2) {
-		return -1;
+		return 0;
 	}
-	assert(ringbuf_read_int16(rb, size) == 0);
+	assert(ringbuf_read_int16(rb, size) == 2);
 	if (ringbuf_bytes_used(rb) >= *size) {
 		if (rb->head >= rb->tail) {
 			*out = rb->tail;
 			rb->tail += *size;
-			return 0;
+			return (*size + 2);
 		} else {
 			int n = ((rb->tail - rb->buf) + *size) % rb->size;
 			const uint8_t *end = ringbuf_end(rb);
 			memcpy(end, rb->buf, n);
 			*out = rb->tail;
 			rb->tail = rb->buf + n;
-			return 0;
+			return (*size + 2);
 		}
 	}
-	return -1;
+	return 0;
 }
 
 int
@@ -317,7 +320,7 @@ ringbuf_read_line(ringbuf_t *rb, uint8_t **out, int *size) {
 				rb->tail += ofs;
 				rb->tail[0] = '\0';
 				rb->tail += 1;
-				return 0;
+				return (ofs + 1);
 			} else {
 				int n = rb->tail - rb->buf;
 				n = (n + *size) % rb->size;
@@ -328,11 +331,11 @@ ringbuf_read_line(ringbuf_t *rb, uint8_t **out, int *size) {
 				rb->tail = rb->buf + n + 1;
 				if (rb->tail == end)
 					rb->tail = rb->buf;
-				return 0;
+				return (ofs + 1);
 			}
 		}
 	}
-	return -1;
+	return 0;
 }
 
 int
@@ -380,9 +383,9 @@ ringbuf_read_int32(ringbuf_t *rb, int32_t *out) {
 		}
 		if (rb->tail == ringbuf_end(rb))
 			rb->tail = rb->buf;
-		return 0;
+		return len;
 	}
-	return -1;
+	return 0;
 }
 
 int
@@ -405,9 +408,9 @@ ringbuf_read_int16(ringbuf_t *rb, int16_t *out) {
 		}
 		if (rb->tail == ringbuf_end(rb))
 			rb->tail = rb->buf;
-		return 0;
+		return len;
 	}
-	return -1;
+	return 0;
 }
 
 int
@@ -430,9 +433,9 @@ ringbuf_read_int8(ringbuf_t *rb, int8_t *out) {
 		}
 		if (rb->tail == ringbuf_end(rb))
 			rb->tail = rb->buf;
-		return 0;
+		return len;
 	}
-	return -1;
+	return 0;
 }
 
 void *
@@ -490,7 +493,7 @@ ringbuf_write_string(ringbuf_t *rb, const uint8_t *buf, size_t size) {
 	if (ringbuf_bytes_free(rb) < size + 2) {
 		ringbuf_ext(rb);
 	}
-	assert(ringbuf_write_int16(rb, size) == 0);
+	assert(ringbuf_write_int16(rb, size) == 2);
 	const uint8_t *end = ringbuf_end(rb);
 	int n = MIN(end - rb->head, size);
 	memcpy(rb->head, buf, n);
@@ -498,7 +501,7 @@ ringbuf_write_string(ringbuf_t *rb, const uint8_t *buf, size_t size) {
 		memcpy(rb->buf, buf + n, size - n);
 	}
 	rb->head = rb->buf + (((rb->head - rb->buf) + size) % rb->size);
-	return 0;
+	return (size + 2);
 }
 
 int
@@ -516,22 +519,21 @@ ringbuf_write_line(ringbuf_t *rb, const uint8_t *buf, size_t size) {
 	assert(rb->head < end);
 	rb->head[0] = '\n';
 	rb->head = ringbuf_nextp(rb, rb->head);
-	return 0;
+	return (size + 1);
 }
 
 int
 ringbuf_write_int32(ringbuf_t *rb, int32_t val) {
-	if (ringbuf_bytes_free(rb) < 2) {
+	int len = 4;
+	if (ringbuf_bytes_free(rb) < len) {
 		ringbuf_ext(rb);
 	}
 	if (CheckEnd()) { // bd
-		int len = 4;
 		for (size_t i = 0; i < len; i++) {
 			rb->head[0] = (val << (i * 8)) & 0xff;
 			rb->head = ringbuf_nextp(rb, rb->head);
 		}
 	} else {
-		int len = 4;
 		for (size_t i = 0; i < len; i++) {
 			rb->head[0] = (val << ((len - 1 - i) * 8)) & 0xff;
 			rb->head = ringbuf_nextp(rb, rb->head);
@@ -539,22 +541,21 @@ ringbuf_write_int32(ringbuf_t *rb, int32_t val) {
 	}
 	if (rb->head == ringbuf_end(rb))
 		rb->head = rb->buf;
-	return 0;
+	return len;
 }
 
 int
 ringbuf_write_int16(ringbuf_t *rb, int16_t val) {
+	int len = 2;
 	if (ringbuf_bytes_free(rb) < 2) {
 		ringbuf_ext(rb);
 	}
 	if (CheckEnd()) { // bd
-		int len = 2;
 		for (size_t i = 0; i < len; i++) {
 			rb->head[0] = (val << (i * 8)) & 0xff;
 			rb->head = ringbuf_nextp(rb, rb->head);
 		}
 	} else {
-		int len = 2;
 		for (size_t i = 0; i < len; i++) {
 			rb->head[0] = (val << ((len - 1 - i) * 8)) & 0xff;
 			rb->head = ringbuf_nextp(rb, rb->head);
@@ -562,7 +563,7 @@ ringbuf_write_int16(ringbuf_t *rb, int16_t val) {
 	}
 	if (rb->head == ringbuf_end(rb))
 		rb->head = rb->buf;
-	return 0;
+	return len;
 }
 
 void *

@@ -5,6 +5,8 @@
 //
 // Modified by Cloud Wu
 
+#define LUA_LIB
+
 #include <stdint.h>
 
 struct random_t {

@@ -4,6 +4,7 @@
 *  @author  Marcela Ozorio Suarez, Roberto I.
 */
 
+#define LUA_LIB
 
 #include <string.h>
 
