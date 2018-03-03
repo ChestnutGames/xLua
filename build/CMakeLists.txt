@@ -31,10 +31,11 @@ find_path(XLUA_PROJECT_DIR NAMES SConstruct
 
 MARK_AS_ADVANCED(XLUA_PROJECT_DIR)
 
-set ( CJSON_SRC
-    lua-cjson/fpconv.c
-    lua-cjson/strbuf.c
-    lua-cjson/lua_cjson.c
+set ( RAPIDJSON_SRC
+    rapidjson/Document.cpp
+    rapidjson/rapidjson.cpp
+    rapidjson/Schema.cpp
+    rapidjson/values.cpp
 )
 set_property (
     SOURCE ${CJSON_SRC}
@@ -42,8 +43,9 @@ set_property (
     PROPERTY COMPILE_DEFINITIONS
     LUA_LIB
 )
-list ( APPEND THIRDPART_INC lua-cjson )
-set ( THIRDPART_SRC ${THIRDPART_SRC} ${CJSON_SRC} )
+list ( APPEND THIRDPART_INC rapidjson )
+list ( APPEND THIRDPART_INC rapidjson/include )
+set ( THIRDPART_SRC ${THIRDPART_SRC} ${RAPIDJSON_SRC} )
 
 set ( SPROTO_SRC
     sproto/lsproto.c
