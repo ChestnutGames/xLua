@@ -98,8 +98,6 @@ set ( THIRDPART_SRC ${THIRDPART_SRC} ${XLUASOCKET_SRC} )
 set ( SKYNET_SRC
     skynet/lsha1.c
     skynet/lua-crypt.c
-    skynet/lua-timer.c
-    skynet/skynet_timer.c
 )
 set_property(
     SOURCE ${SKYNET_SRC}

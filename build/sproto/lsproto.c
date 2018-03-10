@@ -1,4 +1,6 @@
+#ifndef ANDROID
 #define LUA_LIB
+#endif // !ANDROID
 
 #include <string.h>
 #include <stdlib.h>
@@ -168,16 +170,10 @@ encode(const struct sproto_arg *args) {
 		lua_Integer v;
 		lua_Integer vh;
 		int isnum;
-		if (args->extra) {
-			// It's decimal.
-			lua_Number vn = lua_tonumber(L, -1);
-			v = (lua_Integer)(vn * args->extra + 0.5);
-		} else {
-			v = lua_tointegerx(L, -1, &isnum);
-			if(!isnum) {
-				return luaL_error(L, ".%s[%d] is not an integer (Is a %s)", 
-					args->tagname, args->index, lua_typename(L, lua_type(L, -1)));
-			}
+		v = lua_tointegerx(L, -1, &isnum);
+		if(!isnum) {
+			return luaL_error(L, ".%s[%d] is not an integer (Is a %s)", 
+				args->tagname, args->index, lua_typename(L, lua_type(L, -1)));
 		}
 		lua_pop(L,1);
 		// notice: in lua 5.2, lua_Integer maybe 52bit
@@ -275,9 +271,7 @@ lencode(lua_State *L) {
 	int tbl_index = 2;
 	struct sproto_type * st = lua_touserdata(L, 1);
 	if (st == NULL) {
-		luaL_checktype(L, tbl_index, LUA_TNIL);
-		lua_pushstring(L, "");
-		return 1;	// response nil
+		return luaL_argerror(L, 1, "Need a sproto_type object");
 	}
 	luaL_checktype(L, tbl_index, LUA_TTABLE);
 	luaL_checkstack(L, ENCODE_DEEPLEVEL*2 + 8, NULL);
@@ -342,16 +336,8 @@ decode(const struct sproto_arg *args) {
 	switch (args->type) {
 	case SPROTO_TINTEGER: {
 		// notice: in lua 5.2, 52bit integer support (not 64)
-		if (args->extra) {
-			// lua_Integer is 32bit in small lua.
-			uint64_t v = *(uint64_t*)args->value;
-			lua_Number vn = (lua_Number)v;
-			vn /= args->extra;
-			lua_pushnumber(L, vn);
-		} else {
-			lua_Integer v = *(uint64_t*)args->value;
-			lua_pushinteger(L, v);
-		}
+		lua_Integer v = *(uint64_t*)args->value;
+		lua_pushinteger(L, v);
 		break;
 	}
 	case SPROTO_TBOOLEAN: {
@@ -451,8 +437,7 @@ ldecode(lua_State *L) {
 	size_t sz;
 	int r;
 	if (st == NULL) {
-		// return nil
-		return 0;
+		return luaL_argerror(L, 1, "Need a sproto_type object");
 	}
 	sz = 0;
 	buffer = getbuffer(L, 2, &sz);
@@ -576,11 +561,7 @@ lprotocol(lua_State *L) {
 	}
 	response = sproto_protoquery(sp, tag, SPROTO_RESPONSE);
 	if (response == NULL) {
-		if (sproto_protoresponse(sp, tag)) {
-			lua_pushlightuserdata(L, NULL);	// response nil
-		} else {
-			lua_pushnil(L);
-		}
+		lua_pushnil(L);
 	} else {
 		lua_pushlightuserdata(L, response);
 	}

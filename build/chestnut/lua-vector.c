@@ -1,4 +1,6 @@
+#ifndef ANDROID
 #define LUA_LIB
+#endif // !ANDROID
 
 #include <lua.h>
 #include <lauxlib.h>
@@ -77,7 +79,7 @@ quick_sort(lua_State *L, lua_Integer l, lua_Integer r) {
 		return 0;
 	}
 	lua_settop(L, 2);
-	lua_Integer i, j, t;
+	lua_Integer i, j;
 	i = l;
 	j = r;
 	lua_rawgeti(L, 1, l);  // 3

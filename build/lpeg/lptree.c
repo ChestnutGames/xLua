@@ -3,6 +3,10 @@
 ** Copyright 2013, Lua.org & PUC-Rio  (see 'lpeg.html' for license)
 */
 
+#ifndef ANDROID
+#define LUA_LIB
+#endif // !ANDROID
+
 #include <ctype.h>
 #include <limits.h>
 #include <string.h>
@@ -1289,7 +1293,7 @@ static struct luaL_Reg metareg[] = {
 
 
 LUAMOD_API int luaopen_lpeg (lua_State *L);
-LUAMOD_API int luaopen_lpeg (lua_State *L) {
+int luaopen_lpeg (lua_State *L) {
   luaL_newmetatable(L, PATTERN_T);
   lua_pushnumber(L, MAXBACK);  /* initialize maximum backtracking */
   lua_setfield(L, LUA_REGISTRYINDEX, MAXSTACKIDX);
