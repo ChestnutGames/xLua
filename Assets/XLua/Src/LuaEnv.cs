@@ -110,8 +110,14 @@ namespace XLua
                 DoString(init_xlua, "Init");
                 init_xlua = null;
 
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
                 AddBuildin("socket.core", StaticLuaCallbacks.LoadSocketCore);
                 AddBuildin("socket", StaticLuaCallbacks.LoadSocketCore);
+#elif UNITY_IOS || UNITY_ANDROID
+                AddBuildin("socket.core", StaticLuaCallbacks.LoadSocketCore);
+                AddBuildin("socket", StaticLuaCallbacks.LoadSocketCore);
+#else
+#endif
 
                 LuaAPI.lua_newtable(rawL); //metatable of indexs and newindexs functions
                 LuaAPI.xlua_pushasciistring(rawL, "__index");
