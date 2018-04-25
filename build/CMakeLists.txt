@@ -122,7 +122,7 @@ set_property(
     LUA_LIB
 )
 set ( THIRDPART_SRC ${THIRDPART_SRC} ${MIS_SRC} )
-#end skynet
+#end MIS
 
 #begin chestnut
 set ( CHESTNUT_SRC
@@ -319,7 +319,7 @@ if ( WIN32 AND NOT CYGWIN )
         target_link_libraries(xlua
             ws2_32
             ${THIRDPART_LIB}
-            ${CMAKE_SOURCE_DIR}/chestnut/clib/libplist.lib
+            #${CMAKE_SOURCE_DIR}/chestnut/clib/libplist.lib
         )
     endif()
 else ( )
