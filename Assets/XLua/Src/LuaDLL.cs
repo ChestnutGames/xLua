@@ -190,7 +190,10 @@ namespace XLua.LuaDLL
 			xlua_rawgeti(L,LuaIndexes.LUA_REGISTRYINDEX,reference);
 		}
 
-		[DllImport(LUADLL,CallingConvention=CallingConvention.Cdecl)]
+        [DllImport(LUADLL, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int pcall_prepare(IntPtr L, int error_func_ref, int func_ref);
+
+        [DllImport(LUADLL,CallingConvention=CallingConvention.Cdecl)]
 		public static extern void luaL_unref(IntPtr L, int registryIndex, int reference);
 
 		public static void lua_unref(IntPtr L, int reference)
@@ -234,7 +237,10 @@ namespace XLua.LuaDLL
         [DllImport(LUADLL,CallingConvention=CallingConvention.Cdecl)]
 		public static extern bool lua_toboolean(IntPtr L, int index);
 
-		[DllImport(LUADLL,CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LUADLL, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr lua_topointer(IntPtr L, int index);
+
+        [DllImport(LUADLL,CallingConvention = CallingConvention.Cdecl)]
 		public static extern IntPtr lua_tolstring(IntPtr L, int index, out IntPtr strLen);//[-0, +0, m]
 
         public static string lua_tostring(IntPtr L, int index)
@@ -430,9 +436,6 @@ namespace XLua.LuaDLL
 
         [DllImport(LUADLL, CallingConvention = CallingConvention.Cdecl)]
         public static extern int luaopen_i64lib(IntPtr L);//[,,m]
-
-        [DllImport(LUADLL, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int luaopen_perflib(IntPtr L);
 
         [DllImport(LUADLL, CallingConvention = CallingConvention.Cdecl)]
         public static extern int luaopen_socket_core(IntPtr L);//[,,m]

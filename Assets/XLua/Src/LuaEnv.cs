@@ -46,7 +46,7 @@ namespace XLua
         internal int errorFuncRef = -1;
 
 #if THREAD_SAFE || HOTFIX_ENABLE
-        internal static object luaLock = new object();
+        internal /*static*/ object luaLock = new object();
 
         internal object luaEnvLock
         {
@@ -57,7 +57,7 @@ namespace XLua
         }
 #endif
 
-        const int LIB_VERSION_EXPECT = 104;
+        const int LIB_VERSION_EXPECT = 105;
 
         public LuaEnv()
         {
@@ -81,7 +81,6 @@ namespace XLua
                 //Init Base Libs
                 LuaAPI.luaopen_xlua(rawL);
                 LuaAPI.luaopen_i64lib(rawL);
-                LuaAPI.luaopen_perflib(rawL);
 
                 translator = new ObjectTranslator(this, rawL);
                 translator.createFunctionMetatable(rawL);
@@ -460,6 +459,7 @@ namespace XLua
             local rawget = rawget
             local setmetatable = setmetatable
             local import_type = xlua.import_type
+            local import_generic_type = xlua.import_generic_type
             local load_assembly = xlua.load_assembly
 
             function metatable:__index(key) 
@@ -483,7 +483,15 @@ namespace XLua
 
             -- A non-type has been called; e.g. foo = System.Foo()
             function metatable:__call(...)
-                error('No such type: ' .. rawget(self,'.fqn'), 2)
+                local n = select('#', ...)
+                local fqn = rawget(self,'.fqn')
+                if n > 0 then
+                    local gt = import_generic_type(fqn, ...)
+                    if gt then
+                        return rawget(CS, gt)
+                    end
+                end
+                error('No such type: ' .. fqn, 2)
             end
 
             CS = CS or {}
@@ -549,6 +557,7 @@ namespace XLua
                         end
                     end)
                 end
+                xlua.private_accessible(cs)
             end
             xlua.getmetatable = function(cs)
                 return xlua.metatable_operation(cs)
@@ -566,7 +575,7 @@ namespace XLua
                     local csobj = t['__csobj']
                     local func = csobj['<>xLuaBaseProxy_'..k]
                     return function(_, ...)
-                         func(csobj, ...)
+                         return func(csobj, ...)
                     end
                 end
             }
