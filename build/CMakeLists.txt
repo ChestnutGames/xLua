@@ -35,37 +35,39 @@ MARK_AS_ADVANCED(XLUA_PROJECT_DIR)
 set(LUA_SRC_PATH lua-5.3.5/src)
 set(LUAJIT_SRC_PATH luajit-2.1.0b3/src)
 
-set ( RAPIDJSON_SRC
+set ( LUA_RAPIDJSON
     rapidjson/Document.cpp
     rapidjson/rapidjson.cpp
     rapidjson/Schema.cpp
     rapidjson/values.cpp
 )
 set_property (
-    SOURCE ${CJSON_SRC}
+    SOURCE ${LUA_RAPIDJSON}
     APPEND
     PROPERTY COMPILE_DEFINITIONS
     LUA_LIB
+	XLUA
 )
 list ( APPEND THIRDPART_INC rapidjson )
 list ( APPEND THIRDPART_INC rapidjson/include )
-set ( THIRDPART_SRC ${THIRDPART_SRC} ${RAPIDJSON_SRC} )
+list ( APPEND THIRDPART_SRC ${LUA_RAPIDJSON} )
 
-set ( SPROTO_SRC
+set ( LUA_SPROTO
     sproto/lsproto.c
     sproto/sproto.c
 )
 set_property (
-    SOURCE ${SPROTO_SRC}
+    SOURCE ${LUA_SPROTO}
     APPEND
     PROPERTY COMPILE_DEFINITIONS
     LUA_LIB
+	XLUA
 )
 list ( APPEND THIRDPART_INC sproto )
-set ( THIRDPART_SRC ${THIRDPART_SRC} ${SPROTO_SRC} )
+list ( APPEND THIRDPART_SRC ${LUA_SPROTO} )
 
 #begin lpeg
-set ( LPEG_SRC
+set ( LUA_LPEG
     lpeg/lpcap.c
     lpeg/lpcode.c
     lpeg/lpprint.c
@@ -73,44 +75,47 @@ set ( LPEG_SRC
     lpeg/lpvm.c
 )
 set_property(
-    SOURCE ${LPEG_SRC}
+    SOURCE ${LUA_LPEG}
     APPEND
     PROPERTY COMPILE_DEFINITIONS
     LUA_LIB
+	XLUA
 )
 list ( APPEND THIRDPART_INC lpeg )
-set ( THIRDPART_SRC ${THIRDPART_SRC} ${LPEG_SRC})
+list ( APPEND THIRDPART_SRC ${LUA_LPEG} )
 #end lpeg
 
 #begin xluasocket
-set ( XLUASOCKET_SRC
+set ( LUA_XLUASOCKET
     xluasocket/lxluasocket.c
     xluasocket/ringbuf.c
     xluasocket/write_buffer.c
 )
 set_property(
-    SOURCE ${XLUASOCKET_SRC}
+    SOURCE ${LUA_XLUASOCKET}
     APPEND
     PROPERTY COMPILE_DEFINITIONS
     LUA_LIB
+	XLUA
 )
 list ( APPEND THIRDPART_INC xluasocket )
-set ( THIRDPART_SRC ${THIRDPART_SRC} ${XLUASOCKET_SRC} )
+list ( APPEND THIRDPART_SRC ${LUA_XLUASOCKET} )
 #end xluasocket
 
 #begin skynet
-set ( SKYNET_SRC
+set ( LUA_SKYNET
     skynet/lsha1.c
     skynet/lua-crypt.c
 )
 set_property(
-    SOURCE ${SKYNET_SRC}
+    SOURCE ${LUA_SKYNET}
     APPEND
     PROPERTY COMPILE_DEFINITIONS
     LUA_LIB
+	XLUA
 )
 list ( APPEND THIRDPART_INC skynet )
-set ( THIRDPART_SRC ${THIRDPART_SRC} ${SKYNET_SRC} )
+list ( APPEND THIRDPART_SRC ${LUA_SKYNET} )
 #end skynet
 
 #begin MIS
@@ -129,7 +134,7 @@ set ( THIRDPART_SRC ${THIRDPART_SRC} ${MIS_SRC} )
 #end MIS
 
 #begin chestnut
-set ( CHESTNUT_SRC
+set ( LUA_CHESTNUT
 #    chestnut/foundation/EntitasPP/ComponentTypeId.cpp
 #    chestnut/foundation/EntitasPP/Entity.cpp
 #    chestnut/foundation/EntitasPP/Group.cpp
@@ -147,14 +152,16 @@ set ( CHESTNUT_SRC
 #    chestnut/lualib-src/ball/MapSystem.cpp
 #    chestnut/lualib-src/ball/MoveSystem.cpp
 #    chestnut/lualib-src/ball/PositionComponent.cpp
+    chestnut/lua-array.c
+    chestnut/lua-math.c
 	chestnut/lua-queue.c
 	chestnut/lua-stack.c
-    chestnut/lua-array.c
+    chestnut/lua-timesync.c
     chestnut/lua-vector.c
-    chestnut/lua-math.c
+    chestnut/timeutils.c
 )
 set_property(
-    SOURCE ${CHESTNUT_SRC}
+    SOURCE ${LUA_CHESTNUT}
     APPEND
     PROPERTY COMPILE_DEFINITIONS
     LUA_LIB
@@ -264,6 +271,12 @@ source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_SOCKET)
 source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_CORE)
 source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_LIB)
 source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} XLUA_CORE)
+source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_RAPIDJSON)
+source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_CHESTNUT)
+source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_SPROTO)
+source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_LPEG)
+source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_SKYNET)
+source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_XLUASOCKET)
 
 if (APPLE)
     if (IOS)

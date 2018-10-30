@@ -3,7 +3,7 @@
 ** Copyright 2013, Lua.org & PUC-Rio  (see 'lpeg.html' for license)
 */
 
-#ifndef ANDROID
+#if !defined(LUA_LIB)
 #define LUA_LIB
 #endif // !ANDROID
 

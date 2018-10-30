@@ -1,6 +1,6 @@
 #ifndef ANDROID
 #define LUA_LIB
-#endif
+#endif // !ANDROID
 
 #include <lua.h>
 #include <lauxlib.h>
@@ -74,7 +74,7 @@ lnewarrayinit(lua_State *L) {
 	int n = lua_gettop(L);
 	lua_pushvalue(L, lua_upvalueindex(1));
 	lua_Integer size = luaL_checkinteger(L, -1);
-	lua_createtable(L, size, 3);
+	lua_createtable(L, size, 1);
 	lua_pushvalue(L, lua_upvalueindex(2));
 	lua_setmetatable(L, -2);
 	luaL_checktype(L, -1, LUA_TTABLE);

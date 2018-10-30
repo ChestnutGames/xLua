@@ -1,4 +1,4 @@
-#ifndef ANDROID
+﻿#ifndef ANDROID
 #define LUA_LIB
 #endif // !ANDROID
 
@@ -71,8 +71,8 @@ linsert(lua_State *L) {
 
 /*
 ** @breif 
-** @param Ò»¸öÊýpos
-** @param Á½¸öÊý¾Ý
+** @param 一个数pos
+** @param 两个数据
 */
 static int
 lerase(lua_State *L) {

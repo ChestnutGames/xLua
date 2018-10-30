@@ -5,7 +5,7 @@
 //
 // Modified by Cloud Wu
 
-#ifndef ANDROID
+#if defined(xlua)
 #define LUA_LIB
 #endif // !ANDROID
 
