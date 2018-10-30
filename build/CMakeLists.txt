@@ -118,22 +118,9 @@ list ( APPEND THIRDPART_INC skynet )
 list ( APPEND THIRDPART_SRC ${LUA_SKYNET} )
 #end skynet
 
-#begin MIS
-set ( MIS_SRC
-    md5/md5.c
-    random/random.c
-    timer/timer.c
-)
-set_property(
-    SOURCE ${MIS_SRC}
-    APPEND
-    PROPERTY COMPILE_DEFINITIONS
-    LUA_LIB
-)
-set ( THIRDPART_SRC ${THIRDPART_SRC} ${MIS_SRC} )
-#end MIS
-
-#begin chestnut
+set ( LUA_MD5 md5/md5.c)
+set ( LUA_RANDOM random/random.c)
+set ( LUA_TIMER timer/timer.c)
 set ( LUA_CHESTNUT
 #    chestnut/foundation/EntitasPP/ComponentTypeId.cpp
 #    chestnut/foundation/EntitasPP/Entity.cpp
@@ -160,17 +147,30 @@ set ( LUA_CHESTNUT
     chestnut/lua-vector.c
     chestnut/timeutils.c
 )
+set ( LUA_RUDP
+	rudp/lua-rudp.c
+	rudp/rudp.c
+	rudp/rudp.h
+)
+set ( LUA_MTRAND
+	mt_rand/lua-mtrand.c
+	mt_rand/mt_rand.c
+	mt_rand/mt_rand.h
+)
+set ( LUA_KCP
+	kcp/ikcp.c
+	kcp/ikcp.h
+	kcp/lkcp.c
+	kcp/lutil.c
+)
 set_property(
-    SOURCE ${LUA_CHESTNUT}
+    SOURCE ${LUA_MD5} ${LUA_RANDOM} ${LUA_TIMER} ${LUA_CHESTNUT} ${LUA_RUDP} ${LUA_MTRAND} ${LUA_KCP}
     APPEND
     PROPERTY COMPILE_DEFINITIONS
     LUA_LIB
 )
-#list ( APPEND THIRDPART_INC chestnut/foundation )
-#list ( APPEND THIRDPART_INC chestnut/foundation/include )
-#list ( APPEND THIRDPART_INC chestnut/include )
-set ( THIRDPART_SRC ${THIRDPART_SRC} ${CHESTNUT_SRC})
-#end chestnut
+list ( APPEND THIRDPART_SRC ${LUA_MD5} ${LUA_RANDOM} ${LUA_TIMER} ${LUA_CHESTNUT} ${LUA_RUDP} ${LUA_MTRAND} ${LUA_KCP} )
+
 
 if (USING_LUAJIT)
 	
@@ -277,6 +277,12 @@ source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_SPROTO)
 source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_LPEG)
 source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_SKYNET)
 source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_XLUASOCKET)
+source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_MD5)
+source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_RANDOM)
+source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_TIMER)
+source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_RUDP)
+source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_MTRAND)
+source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_KCP)
 
 if (APPLE)
     if (IOS)

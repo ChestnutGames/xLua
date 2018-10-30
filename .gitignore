@@ -11,6 +11,8 @@ Assets/xLuaTest/
 /*.csproj
 /*.sln
 /build/build*
+/build/lua/build*
+/build/luac/build*
 UnityVS
 /Assets/UnityVS.meta
 .DS_Store

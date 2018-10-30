@@ -1,4 +1,6 @@
+#if !defined(LUA_LIB)
 #define LUA_LIB
+#endif
 
 #include "rudp.h"
 

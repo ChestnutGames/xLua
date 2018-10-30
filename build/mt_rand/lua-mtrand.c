@@ -1,5 +1,4 @@
-#if defined(XLUA) && defined(ANDROID)
-#else
+#if !defined(LUA_LIB)
 #define LUA_LIB
 #endif // !ANDROID
 
