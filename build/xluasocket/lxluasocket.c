@@ -41,6 +41,9 @@
 
 #define UDP_ADDRESS_SIZE 19	// ipv6 128bit + port 16bit + 1 byte type
 
+#define MAX_SENDPACK_NUM (10)
+#define MAX_RECVPACK_NUM (10)
+#define MAX_SLICEPACK_NUM (20)
 #define MAX_SOCKET_NUM (4)
 
 static void
@@ -62,9 +65,8 @@ close_lib(lua_State *L) {
 }
 
 typedef struct lua_socket {
+	struct lua_socket *prev;        // 双向链表
 	struct lua_socket *next;
-	struct lua_socket *listen;    // 所有监听的socket并且有客户来链接
-	struct lua_socket *accept;    // 所有接受的
 	int             id;
 	int             fd;
 	uint8_t         protocol;
@@ -80,92 +82,48 @@ typedef struct lua_gate {
 	int                 count;        // 使用了多少
 	fd_set              rfds;
 	fd_set              wfds;
-	struct lua_socket  *head;         // 遍历所有socket
-	struct lua_socket  *error;        // 从head删除，加入错误
-	struct lua_socket  *disconn;      // 从head删除，加入断连
-	struct lua_socket  *accept;       // 加入accept，单独处理
+	struct lua_socket   head[1];      // 遍历所有socket
 	struct lua_socket  *freelist;     // 用来查找下一个分配的socket
 	struct lua_socket   socks[0];     // 分配的所有socket
 } lua_gate;
 
 ///////////////////////////////////////////////////////////////////// 处理poll
-static void
+static int
 gate_add(struct lua_gate *g, struct lua_socket *so) {
 	assert(g != NULL && so != NULL);
-	if (g->head == NULL) {
-		g->head = so;
-	} else {
-		struct lua_socket *ptr = g->head;
-		while (ptr->next && ptr != so) {
-			ptr = ptr->next;
-		}
-		assert(ptr != so);
-		ptr->next = so;
-	}
-	so->next = NULL;
+	so->next = g->head->next;
+	g->head->next->prev = so;
+	g->head->next = so;
+	return 0;
 }
 
 static struct lua_socket *
 gate_del(struct lua_gate *g, struct lua_socket *so) {
 	assert(g != NULL && so != NULL);
-	if (g->head == NULL) {
-		return NULL;
-	} else if (g->head == so) {
-		assert(so->type != SOCKET_TYPE_INVALID);
-		g->head = g->head->next;
-		g->count--;
-		so->type = SOCKET_TYPE_INVALID;
-		return so;
-	} else {
-		struct lua_socket *ptr = g->head;
-		while (ptr != NULL && ptr->next != NULL) {
-			if (ptr->next == so) {
-				ptr->next = so->next;
-				so->next = NULL;
-				so->type = SOCKET_TYPE_INVALID;
-				g->freelist = so;
-				return so;
-			}
-			ptr = ptr->next;
+	struct lua_socket *ptr = g->head->next;
+	while (ptr != NULL) {
+		if (ptr == so) {
+			ptr->prev->next = ptr->next;
+			ptr->next->prev = ptr->prev;
+			return 0;
 		}
 	}
-	return NULL;
+	return -1;
 }
 ///////////////////////////////////////////////////////////////////// 结束poll
 
 
-static void
-gate_add_disconected(struct lua_gate *g, struct lua_socket *so) {
-	assert(g != NULL && so != NULL);
-	if (g->disconn == NULL) {
-		g->disconn = so;
-		so->next = NULL;
-	} else {
-		struct lua_socket *pp = g->disconn;
-		while (pp != NULL && pp->next != NULL) {
-			pp = pp->next;
-		}
-		pp->next = so;
-		so->next = NULL;
-	}
-}
 
 static int
-on_disconnected(lua_State *L, struct lua_gate *g) {
-	struct lua_socket *so = g->disconn;
-	g->disconn = NULL;
-	while (so) {
-		lua_getglobal(L, "xluasocket");
-		lua_rawgetp(L, -1, g);
-		luaL_checktype(L, -1, LUA_TFUNCTION);
-		lua_pushinteger(L, so->id);
-		lua_pushinteger(L, SOCKET_CLOSE);
-		lua_pushinteger(L, 0);
-		lua_pcall(L, 3, 0, 0);
-		lua_pop(L, 1);
-
-		so = so->next;
-	}
+on_disconnected(lua_State *L, struct lua_gate *g, struct lua_socket *so) {
+	lua_getglobal(L, "xluasocket");
+	lua_rawgetp(L, -1, g);
+	luaL_checktype(L, -1, LUA_TFUNCTION);
+	lua_pushinteger(L, so->id);
+	lua_pushinteger(L, SOCKET_CLOSE);
+	lua_pushinteger(L, 0);
+	lua_pcall(L, 3, 0, 0);
+	lua_pop(L, 1);
 	return 0;
 }
 
@@ -185,10 +143,42 @@ on_data(lua_State *L, struct lua_gate *g, struct lua_socket *so, char *buffer, i
 }
 
 static int
-on_error(lua_State *L, struct lua_gate *g) {
-	struct lua_socket *so = g->error;
-	g->error = NULL;
-	while (so) {
+on_error(lua_State *L, struct lua_gate *g, struct lua_socket *so) {
+#if defined(_WIN32)
+	int e = WSAGetLastError();
+	if (e == WSAEINTR || e == WSAEINPROGRESS) {
+#else
+	if (errno == EINTR || errno == EWOULDBLOCK || errno == EAGAIN) {
+#endif
+		// 不做处理
+		return 0;
+#if defined(_WIN32)
+	} else if (e == WSAECONNRESET) {
+		closesocket(so->fd);
+#else
+	} else if (errno == ECONNRESET) {
+		close(so->fd);
+#endif
+		// 断联处理
+		so->type = SOCKET_TYPE_CLOSE;
+		so->prev->next = so->next;
+		if (so->next != NULL) {
+			so->next->prev = so->prev;
+		}
+		on_disconnected(L, g, so);
+		return 0;
+	} else {
+		// 错误处理
+#if defined(_WIN32)
+		closesocket(so->fd);
+#else
+		close(so->fd);
+#endif
+		so->type = SOCKET_TYPE_CLOSE;
+		so->prev->next = so->next;
+		if (so->next != NULL) {
+			so->next->prev = so->prev;
+		}
 		lua_getglobal(L, "xluasocket");
 		lua_rawgetp(L, -1, g);
 		luaL_checktype(L, -1, LUA_TFUNCTION);
@@ -197,34 +187,22 @@ on_error(lua_State *L, struct lua_gate *g) {
 		lua_pushinteger(L, 0);
 		lua_pcall(L, 3, 0, 0);
 		lua_pop(L, 1);
-		so = so->next;
+		return 0;
 	}
 	return 0;
 }
 
 static int
-on_accept(lua_State *L, struct lua_gate *g) {
-	struct lua_socket *l = g->accept;
-	g->accept = NULL;
-	while (l) {
-		assert(l->type == SOCKET_TYPE_LISTEN);
-		struct lua_socket *so = l->accept;
-		l->accept = NULL;
-		while (so) {
-			assert(so->type == SOCKET_TYPE_CONNECTED);
-			lua_getglobal(L, "xluasocket");
-			lua_rawgetp(L, -1, g);
-			luaL_checktype(L, -1, LUA_TFUNCTION);
-			lua_pushinteger(L, l->id);
-			lua_pushinteger(L, SOCKET_ACCEPT);
-			lua_pushinteger(L, so->id);
-			lua_pcall(L, 3, 0, 0);
-			lua_pop(L, 1);
-
-			so = so->next;
-		}
-		l = l->listen;
-	}
+on_accept(lua_State *L, struct lua_gate *g, struct lua_socket *l, struct lua_socket *so) {
+	assert(so->type == SOCKET_TYPE_CONNECTED);
+	lua_getglobal(L, "xluasocket");
+	lua_rawgetp(L, -1, g);
+	luaL_checktype(L, -1, LUA_TFUNCTION);
+	lua_pushinteger(L, l->id);
+	lua_pushinteger(L, SOCKET_ACCEPT);
+	lua_pushinteger(L, so->id);
+	lua_pcall(L, 3, 0, 0);
+	lua_pop(L, 1);
 	return 0;
 }
 
@@ -450,18 +428,14 @@ lsendto(lua_State *L) {
 static int
 lpoll(lua_State *L) {
 	struct lua_gate *g = (struct lua_gate *)lua_touserdata(L, 1);
-	if (g->head == NULL) {
-		return 0;
-	}
 	int max = 0;
 	FD_ZERO(&g->rfds);
 	FD_ZERO(&g->wfds);
-	struct lua_socket *ptr = g->head;
+	struct lua_socket *ptr = g->head->next;
 	while (ptr) {
 		max = (max > ptr->fd) ? max : ptr->fd;
 		FD_SET(ptr->fd, &g->rfds);
 		FD_SET(ptr->fd, &g->wfds);
-		//ptr->extra = NULL;
 		ptr = ptr->next;
 	}
 	if (max <= 0) {
@@ -474,16 +448,10 @@ lpoll(lua_State *L) {
 	if (res <= 0) {
 		return 0;
 	}
-	
-	struct lua_socket *next = NULL, *prev = NULL;
-	prev = g->head;
-	ptr = g->head;
-	while (ptr != NULL) {
-		if (ptr->next != NULL)
-			next = ptr->next;
-		else
-			next = NULL;
 
+	ptr = g->head->next;
+	for (ptr = g->head->next; ptr != NULL; ptr = ptr->next) {
+		// read
 		if (FD_ISSET(ptr->fd, &g->rfds)) {
 			if (ptr->type == SOCKET_TYPE_LISTEN) {
 				if (g->count > MAX_SOCKET_NUM) {
@@ -509,96 +477,40 @@ lpoll(lua_State *L) {
 				so->type = SOCKET_TYPE_CONNECTED;
 				int addlen;
 				so->fd = fd;
-				
-				if (ptr->accept == NULL) {
-					ptr->accept = so;
-					if (g->accept == NULL) {
-						g->accept = ptr;
-					} else {
-						struct lua_socket *pp = g->accept;
-						while (pp != NULL && pp->listen != NULL) {
-							pp = pp->listen;
-						}
-						pp->listen = ptr;
-						ptr->listen = NULL;
-					}
-				} else {
-					struct lua_socket *pp = ptr->accept;
-					while (pp != NULL && pp->accept != NULL) {
-						pp = pp->accept;
-					}
-					pp->next = so;
-					so->next = NULL;
-				}
+				on_accept(L, g, ptr, so);
 			} else if (ptr->type == SOCKET_TYPE_CONNECTED) {
 				if (ptr->protocol == PROTOCOL_TCP) {
-					int res = ringbuf_read_fd(ptr->rb, ptr->fd, RINGBUF_SIZE);
-					if (res == -1) {
+					for (size_t i = 0; i < MAX_RECVPACK_NUM; i++) {
+						int res = ringbuf_read_fd(ptr->rb, ptr->fd, RINGBUF_SIZE);
+						if (res == -1) {
+							on_error(L, g, ptr);
+							break;
+						} else if (res == 0) {
 #if defined(_WIN32)
-						int e = WSAGetLastError();
-						if (e == WSAEINTR || e == WSAEINPROGRESS) {
-#else
-						if (errno == EINTR || errno == EWOULDBLOCK || errno == EAGAIN) {
-#endif
-							// 当前so不处理
-							prev = ptr;
-							ptr = next;
-							continue;
-#if defined(_WIN32)
-						} else if (e == WSAECONNRESET) {
 							closesocket(ptr->fd);
 #else
-						} else if (errno == ECONNRESET) {
 							close(ptr->fd);
 #endif
 							ptr->type = SOCKET_TYPE_CLOSE;
-							prev->next = next;
-							ptr->next = NULL;
-							gate_add_disconected(g, ptr);
-							ptr = next;
-							continue;
+							ptr->prev->next = ptr->next;
+							if (ptr->next != NULL) {
+								ptr->next->prev = ptr->prev;
+							}
+							on_disconnected(L, g, ptr);
+							break;
+						}
+						if (ptr->header == HEADER_TYPE_PG) {
+							int size = 0;
+							uint8_t *buf = NULL;
+							for (size_t j = 0; ringbuf_read_string(ptr->rb, &buf, &size) > 0 && j < MAX_SLICEPACK_NUM; j++) {
+								on_data(L, g, ptr, (char *)buf, size);
+							}
 						} else {
-#if defined(_WIN32)
-							closesocket(ptr->fd);
-#else
-							close(ptr->fd);
-#endif
-							ptr->type = SOCKET_TYPE_CLOSE;
-							prev->next = next;
-							ptr->next = NULL;
-							gate_add_disconected(g, ptr);
-							ptr = next;
-							continue;
-						}
-					} else if (res == 0) {
-#if defined(_WIN32)
-						closesocket(ptr->fd);
-#else
-						close(ptr->fd);
-#endif
-						ptr->type = SOCKET_TYPE_CLOSE;
-						prev->next = next;
-						ptr->next = NULL;
-						gate_add_disconected(g, ptr);
-						ptr = next;
-						continue;
-					}
-
-					if (ptr->header == HEADER_TYPE_PG) {
-						int count = 0;
-						int size = 0;
-						uint8_t *buf = NULL;
-						while (ringbuf_read_string(ptr->rb, &buf, &size) > 0 && count <= 50) {
-							on_data(L, g, ptr, (char *)buf, size);
-							count++;
-						}
-					} else {
-						int count = 0;
-						int size = 0;
-						uint8_t *buf = NULL;
-						while (ringbuf_read_line(ptr->rb, &buf, &size) > 0 && count <= 50) {
-							on_data(L, g, ptr, (char *)buf, size);
-							count++;
+							int size = 0;
+							uint8_t *buf = NULL;
+							for (size_t j = 0; ringbuf_read_line(ptr->rb, &buf, &size) > 0 && j < MAX_SLICEPACK_NUM; j++) {
+								on_data(L, g, ptr, (char *)buf, size);
+							}
 						}
 					}
 				} else if (ptr->protocol == PROTOCOL_UDP) {
@@ -606,34 +518,15 @@ lpoll(lua_State *L) {
 				}
 			}
 		}
-
+		// write
 		if (FD_ISSET(ptr->fd, &g->wfds)) {
 			if (ptr->type == SOCKET_TYPE_CONNECTED) {
 				struct write_buffer* wb = wb_list_pop(ptr->wl);
-				while (wb != NULL) {
+				for (size_t i = 0; i < MAX_SENDPACK_NUM && wb != NULL; i++) {
 					res = wb_write_fd(wb, ptr->fd);
 					if (res == -1) {
-#if defined(_MSC_VER)
-						int e = WSAGetLastError();
-						if (e == WSAEINTR || e == WSAEINPROGRESS) {
-#else 
-						if (errno == EINTR || errno == EWOULDBLOCK || errno == EAGAIN) {
-
-#endif
-							break;
-						} else {
-#if defined(_WIN32)
-							closesocket(ptr->fd);
-#else
-							close(ptr->fd);
-#endif
-							ptr->type = SOCKET_TYPE_CLOSE;
-							prev->next = next;
-							ptr->next = NULL;
-							gate_add_disconected(g, ptr);
-							ptr = next;
-							continue;
-						}
+						on_error(L, g, ptr);
+						break;
 					} else if (res == 0) {
 #if defined(_WIN32)
 						closesocket(ptr->fd);
@@ -641,11 +534,12 @@ lpoll(lua_State *L) {
 						close(ptr->fd);
 #endif
 						ptr->type = SOCKET_TYPE_CLOSE;
-						prev->next = next;
-						ptr->next = NULL;
-						gate_add_disconected(g, ptr);
-						ptr = next;
-						continue;
+						ptr->prev->next = ptr->next;
+						if (ptr->next != NULL) {
+							ptr->next->prev = ptr->prev;
+						}
+						on_disconnected(L, g, ptr);
+						break;
 					}
 					if (wb_is_empty(wb)) {
 						wb_list_free_wb(ptr->wl, wb);
@@ -654,14 +548,7 @@ lpoll(lua_State *L) {
 				}
 			}
 		}
-		prev = ptr;
-		ptr = next;
 	}
-
-	on_accept(L, g);
-	on_disconnected(L, g);
-	on_error(L, g);
-
 	return 0;
 }
 

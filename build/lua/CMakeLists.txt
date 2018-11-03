@@ -15,20 +15,19 @@ endif ()
 
 project(lua)
 
-
-find_path(LUAC_PROJECT_DIR NAMES SConstruct
+find_path(LUA_PROJECT_DIR NAMES SConstruct
     PATHS 
     ${CMAKE_SOURCE_DIR}
     NO_DEFAULT_PATH
     )
 
-MARK_AS_ADVANCED(LUAC_PROJECT_DIR)
+MARK_AS_ADVANCED(LUA_PROJECT_DIR)
 
-set(LUA_SRC_PATH ../lua-5.3.5/src)
-set(LUA_CHESTNUT_PATH ../chestnut)
-set(LUA_CONFIG_PATH ../config)
-set(LUA_KCP_PATH ../kcp)
-
+set (LUA_SRC_PATH ../lua-5.3.5/src)
+set (LUA_CHESTNUT_PATH ../chestnut)
+set (LUA_CONFIG_PATH ../config)
+set (LUA_KCP_PATH ../kcp)
+set (LUA_XLUASOCKET_PATH ../xluasocket)
 
 set ( LUA_IDSIZE 120 CACHE NUMBER "gives the maximum size for the description of the source." )
 
@@ -49,7 +48,9 @@ set ( LUA_LIB ${LUA_SRC_PATH}/lauxlib.c ${LUA_SRC_PATH}/lbaselib.c ${LUA_SRC_PAT
 set ( LUAC ${LUA_SRC_PATH}/luac.c )
 set ( LUA ${LUA_SRC_PATH}/lua.c )
 set ( LUA_CHESTNUT ${LUA_CHESTNUT_PATH}/lua-array.c ${LUA_CHESTNUT_PATH}/lua-math.c ${LUA_CHESTNUT_PATH}/lua-queue.c ${LUA_CHESTNUT_PATH}/lua-stack.c
-  ${LUA_CHESTNUT_PATH}/lua-timesync.c ${LUA_CHESTNUT_PATH}/lua-vector.c ${LUA_CHESTNUT_PATH}/timeutils.c )
+  ${LUA_CHESTNUT_PATH}/lua-timesync.c ${LUA_CHESTNUT_PATH}/lua-vector.c ${LUA_CHESTNUT_PATH}/timeutils.c ${LUA_CHESTNUT_PATH}/timeutils.h)
+set ( LUA_XLUASOCKET ${LUA_XLUASOCKET_PATH}/lxluasocket.c ${LUA_XLUASOCKET_PATH}/ringbuf.c ${LUA_XLUASOCKET_PATH}/write_buffer.h ${LUA_XLUASOCKET_PATH}/write_buffer.c)
+set ( RINGBUF_UNITTEST ${LUA_XLUASOCKET_PATH}/protoc.h ${LUA_XLUASOCKET_PATH}/ringbuf.h ${LUA_XLUASOCKET_PATH}/ringbuf.c ${LUA_XLUASOCKET_PATH}/write_buffer.h ${LUA_XLUASOCKET_PATH}/write_buffer.c ${LUA_XLUASOCKET_PATH}/ringbuf_unittest.cc)
 
 macro(source_group_by_dir proj_dir source_files)
     if(MSVC OR APPLE)
@@ -72,15 +73,37 @@ source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_CORE)
 source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_LIB)
 source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUAC)
 
-add_definitions(-DLUA_BUILD_AS_DLL)
 
-add_library(liblua SHARED ${LUA_CORE} ${LUA_LIB})
-#target_compile_definitions (liblua PRIVATE )
-add_library(chestnut SHARED ${LUA_CHESTNUT})
 
 add_executable (luac ${LUA_CORE} ${LUA_LIB} ${LUAC})
 add_executable (lua ${LUA_CORE} ${LUA_LIB} ${LUA})
+target_compile_definitions(lua PUBLIC LUA_BUILD_AS_DLL)
+set_target_properties(lua
+	PROPERTIES
+	ENABLE_EXPORTS ON
+)
 
+add_library(chestnut SHARED ${LUA_CHESTNUT})
+#target_include_directories(chestnut PUBLIC ${LUA_SRC_PATH})
+#target_compile_options(chestnut)
+target_link_libraries(chestnut lua)
+add_dependencies(chestnut lua)
+add_library(xluasocket SHARED ${LUA_XLUASOCKET})
+#target_include_directories(chestnut PUBLIC ${LUA_SRC_PATH})
+#target_compile_options(chestnut)
+target_link_libraries(xluasocket lua)
+target_compile_definitions(xluasocket PRIVATE XLUASOCKET)
+add_dependencies(xluasocket lua)
+add_executable (ringbuf_unittest ${RINGBUF_UNITTEST})
+target_include_directories(ringbuf_unittest PUBLIC ../googletest/include)
+target_link_libraries(ringbuf_unittest ../../googletest/Debug/gtestd ../../googletest/Debug/gtest_maind)
+
+set_target_properties(chestnut xluasocket luac lua ringbuf_unittest
+	PROPERTIES
+	RUNTIME_OUTPUT_DIRECTORY_DEBUG ../bin
+	ARCHIVE_OUTPUT_DIRECTORY_DEBUG ../bin
+	LIBRARY_OUTPUT_DIRECTORY_DEBUG ../bin
+)
 
 if (LUAC_COMPATIBLE_FORMAT)
 target_compile_definitions (luac PRIVATE LUAC_COMPATIBLE_FORMAT)

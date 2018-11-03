@@ -48,7 +48,6 @@ set_property (
     LUA_LIB
 	XLUA
 )
-list ( APPEND THIRDPART_INC rapidjson )
 list ( APPEND THIRDPART_INC rapidjson/include )
 list ( APPEND THIRDPART_SRC ${LUA_RAPIDJSON} )
 
@@ -63,7 +62,6 @@ set_property (
     LUA_LIB
 	XLUA
 )
-list ( APPEND THIRDPART_INC sproto )
 list ( APPEND THIRDPART_SRC ${LUA_SPROTO} )
 
 #begin lpeg
@@ -81,7 +79,6 @@ set_property(
     LUA_LIB
 	XLUA
 )
-list ( APPEND THIRDPART_INC lpeg )
 list ( APPEND THIRDPART_SRC ${LUA_LPEG} )
 #end lpeg
 
@@ -97,8 +94,8 @@ set_property(
     PROPERTY COMPILE_DEFINITIONS
     LUA_LIB
 	XLUA
+	XLUASOCKET
 )
-list ( APPEND THIRDPART_INC xluasocket )
 list ( APPEND THIRDPART_SRC ${LUA_XLUASOCKET} )
 #end xluasocket
 

@@ -1,2 +1,2 @@
-cd ../bin
-lua.exe ./../hello/src/test/client.lua
+cd ../lua/bin
+lua.exe ./../../hello/app/test/test.lua

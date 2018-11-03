@@ -12,6 +12,7 @@ Assets/xLuaTest/
 /*.sln
 /build/build*
 /build/lua/build*
+/build/lua/bin
 /build/luac/build*
 UnityVS
 /Assets/UnityVS.meta
