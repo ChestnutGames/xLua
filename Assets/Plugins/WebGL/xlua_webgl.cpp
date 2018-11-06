@@ -35,17 +35,6 @@ extern "C" {
 #include "../../../WebGLPlugins/i64lib.c"
 #include "../../../WebGLPlugins/perflib.c"
 #include "../../../WebGLPlugins/xlua.c"
-#include "../../../WebGLPlugins/lpeg/lpcap.c"
-#include "../../../WebGLPlugins/lpeg/lpcode.c"
-#include "../../../WebGLPlugins/lpeg/lpprint.c"
-#include "../../../WebGLPlugins/lpeg/lptree.c"
-#include "../../../WebGLPlugins/lpeg/lpvm.c"
-#include "../../../WebGLPlugins/md5/md5.c"
-#include "../../../WebGLPlugins/random/random.c"
-#include "../../../WebGLPlugins/rapidjson/Document.cpp"
-#include "../../../WebGLPlugins/rapidjson/rapidjson.cpp"
-#include "../../../WebGLPlugins/rapidjson/Schema.cpp"
-#include "../../../WebGLPlugins/rapidjson/values.cpp"
 }
 
 

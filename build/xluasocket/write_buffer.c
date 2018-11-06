@@ -98,9 +98,18 @@ wb_list_size(struct wb_list* list) {
 }
 
 struct write_buffer *
-wb_list_alloc_wb(struct wb_list* list, int hint) {
+	wb_list_alloc_wb(struct wb_list* list, int hint) {
 	int offset = WRITE_BUFFER_SIZE;
 	struct write_buffer *ptr = list->freelist;
+	if (ptr == NULL) {
+		while ((1 << offset) < hint) {
+			++offset;
+		}
+		ptr = MALLOC(sizeof(*ptr) + (1 << offset));
+		goto LABLE;
+	}
+
+	// 寻找大于此内存的
 	if (ptr->cap < hint) {
 		while (ptr->next != NULL) {
 			if (ptr->next->cap > hint) {
@@ -122,9 +131,11 @@ LABLE:
 		}
 		ptr = MALLOC(sizeof(*ptr) + (1 << offset));
 	}
+
+	ptr->next = NULL;
 	ptr->cap = 1 << offset;
 	ptr->ptr = ptr->buffer;
-	memset(ptr, 0, sizeof(*ptr) + ptr->cap);
+	memset(ptr->buffer, 0, ptr->cap);
 	return ptr;
 }
 
@@ -213,7 +224,7 @@ wb_list_push_wb(struct wb_list* list, struct write_buffer *wb) {
 }
 
 struct write_buffer*
-wb_list_pop(struct wb_list* list) {
+	wb_list_pop(struct wb_list* list) {
 	if (list->head == NULL) {
 		return NULL;
 	} else if (list->head == list->tail) {

@@ -70,6 +70,8 @@ source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUAC)
 add_executable (luac ${LUA_CORE} ${LUA_LIB} ${LUAC})
 add_executable (lua ${LUA_CORE} ${LUA_LIB} ${LUA})
 
+target_compile_definitions (lua PRIVATE LUA_BUILD_AS_DLL)
+
 if (LUAC_COMPATIBLE_FORMAT)
 target_compile_definitions (luac PRIVATE LUAC_COMPATIBLE_FORMAT)
 target_compile_definitions (lua PRIVATE LUAC_COMPATIBLE_FORMAT)

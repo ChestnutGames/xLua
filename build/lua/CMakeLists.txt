@@ -73,8 +73,6 @@ source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_CORE)
 source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_LIB)
 source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUAC)
 
-
-
 add_executable (luac ${LUA_CORE} ${LUA_LIB} ${LUAC})
 add_executable (lua ${LUA_CORE} ${LUA_LIB} ${LUA})
 target_compile_definitions(lua PUBLIC LUA_BUILD_AS_DLL)
@@ -92,18 +90,21 @@ add_library(xluasocket SHARED ${LUA_XLUASOCKET})
 #target_include_directories(chestnut PUBLIC ${LUA_SRC_PATH})
 #target_compile_options(chestnut)
 target_link_libraries(xluasocket lua)
-target_compile_definitions(xluasocket PRIVATE XLUASOCKET)
+target_compile_definitions(xluasocket PRIVATE XLUASOCKET LUA_BUILD_AS_DLL)
 add_dependencies(xluasocket lua)
 add_executable (ringbuf_unittest ${RINGBUF_UNITTEST})
-target_include_directories(ringbuf_unittest PUBLIC ../googletest/include)
+target_include_directories(ringbuf_unittest PRIVATE ../googletest/include)
 target_link_libraries(ringbuf_unittest ../../googletest/Debug/gtestd ../../googletest/Debug/gtest_maind)
 
-set_target_properties(chestnut xluasocket luac lua ringbuf_unittest
-	PROPERTIES
-	RUNTIME_OUTPUT_DIRECTORY_DEBUG ../bin
-	ARCHIVE_OUTPUT_DIRECTORY_DEBUG ../bin
-	LIBRARY_OUTPUT_DIRECTORY_DEBUG ../bin
-)
+#set_target_properties(chestnut xluasocket luac lua ringbuf_unittest
+#	PROPERTIES
+#	RUNTIME_OUTPUT_DIRECTORY ../../xluatest
+#	RUNTIME_OUTPUT_DIRECTORY_DEBUG ../../xluatest
+#	ARCHIVE_OUTPUT_DIRECTORY ../../xluatest
+#	ARCHIVE_OUTPUT_DIRECTORY_DEBUG ../../xluatest
+#	LIBRARY_OUTPUT_DIRECTORY ../../xluatest
+#	LIBRARY_OUTPUT_DIRECTORY_DEBUG ../../xluatest
+#)
 
 if (LUAC_COMPATIBLE_FORMAT)
 target_compile_definitions (luac PRIVATE LUAC_COMPATIBLE_FORMAT)

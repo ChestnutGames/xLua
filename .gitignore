@@ -35,4 +35,5 @@ build/luajit-2.1.0b2/src/lua51.lib
 build/luajit-2.1.0b2/src/luajit.exe
 build/luajit-2.1.0b2/src/luajit.exp
 build/luajit-2.1.0b2/src/luajit.lib
+General/vs2013/obj
 
