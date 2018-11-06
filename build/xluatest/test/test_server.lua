@@ -27,7 +27,8 @@ local function run( ... )
 		error(string.format("id = %d listen failture.", id))
 	end
 	local ok, err = xluasocket.start(g, id)
-	if err ~= 0 then
+	if ok ~= 0 then
+		print(ok)
 		error(string.format("id = %d start failture code %d.", id, err))
 	end
 
