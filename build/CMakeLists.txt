@@ -1,4 +1,4 @@
-# Tencent is pleased to support the open source community by making xLua available.
+﻿# Tencent is pleased to support the open source community by making xLua available.
 # Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 # Licensed under the MIT License (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 # http://opensource.org/licenses/MIT
@@ -99,22 +99,11 @@ set_property(
 list ( APPEND THIRDPART_SRC ${LUA_XLUASOCKET} )
 #end xluasocket
 
-#begin skynet
+# thirdpart
 set ( LUA_SKYNET
     skynet/lsha1.c
     skynet/lua-crypt.c
 )
-set_property(
-    SOURCE ${LUA_SKYNET}
-    APPEND
-    PROPERTY COMPILE_DEFINITIONS
-    LUA_LIB
-	XLUA
-)
-list ( APPEND THIRDPART_INC skynet )
-list ( APPEND THIRDPART_SRC ${LUA_SKYNET} )
-#end skynet
-
 set ( LUA_MD5 md5/md5.c)
 set ( LUA_RANDOM random/random.c)
 set ( LUA_TIMER timer/timer.c)
@@ -160,13 +149,18 @@ set ( LUA_KCP
 	kcp/lkcp.c
 	kcp/lutil.c
 )
+set ( LUA_BOUNCE 
+	bounce/bounce/Collision/Shapes/b3Hull.cpp
+	bounce/bounce/Collision/Shapes/b3Polyhedron.cpp
+	bounce/bounce/Collision/Shapes/b3Shape.cpp
+)
 set_property(
-    SOURCE ${LUA_MD5} ${LUA_RANDOM} ${LUA_TIMER} ${LUA_CHESTNUT} ${LUA_RUDP} ${LUA_MTRAND} ${LUA_KCP}
+    SOURCE ${LUA_MD5} ${LUA_RANDOM} ${LUA_TIMER} ${LUA_CHESTNUT} ${LUA_RUDP} ${LUA_MTRAND} ${LUA_KCP} ${LUA_SKYNET}
     APPEND
     PROPERTY COMPILE_DEFINITIONS
     LUA_LIB
 )
-list ( APPEND THIRDPART_SRC ${LUA_MD5} ${LUA_RANDOM} ${LUA_TIMER} ${LUA_CHESTNUT} ${LUA_RUDP} ${LUA_MTRAND} ${LUA_KCP} )
+list ( APPEND THIRDPART_SRC ${LUA_MD5} ${LUA_RANDOM} ${LUA_TIMER} ${LUA_CHESTNUT} ${LUA_RUDP} ${LUA_MTRAND} ${LUA_KCP} ${LUA_SKYNET})
 
 
 if (USING_LUAJIT)
