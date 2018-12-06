@@ -1,4 +1,4 @@
-/*
+﻿/*
  * plist.c
  * Builds plist XML structures
  *
@@ -22,9 +22,14 @@
  */
 
 
+#include "plist.h"
+#include "hashtable.h"
+
+#include <node.h>
+#include <node_iterator.h>
+
 #include <string.h>
 #include <assert.h>
-#include "plist.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -34,10 +39,6 @@
 #else
 #include <pthread.h>
 #endif
-
-#include <node.h>
-#include <node_iterator.h>
-#include <hashtable.h>
 
 extern void plist_xml_init(void);
 extern void plist_xml_deinit(void);
@@ -120,7 +121,7 @@ static void __attribute__((destructor)) libplist_deinitialize(void)
 #endif
 
 
-PLIST_API int plist_is_binary(const char *plist_data, uint32_t length)
+int plist_is_binary(const char *plist_data, uint32_t length)
 {
     if (length < 8) {
         return 0;
@@ -130,7 +131,7 @@ PLIST_API int plist_is_binary(const char *plist_data, uint32_t length)
 }
 
 
-PLIST_API void plist_from_memory(const char *plist_data, uint32_t length, plist_t * plist)
+void plist_from_memory(const char *plist_data, uint32_t length, plist_t * plist)
 {
     if (length < 8) {
         *plist = NULL;
@@ -230,14 +231,14 @@ static int plist_free_node(node_t* node)
     return node_index;
 }
 
-PLIST_API plist_t plist_new_dict(void)
+plist_t plist_new_dict(void)
 {
     plist_data_t data = plist_new_plist_data();
     data->type = PLIST_DICT;
     return plist_new_node(data);
 }
 
-PLIST_API plist_t plist_new_array(void)
+plist_t plist_new_array(void)
 {
     plist_data_t data = plist_new_plist_data();
     data->type = PLIST_ARRAY;
@@ -254,7 +255,7 @@ static plist_t plist_new_key(const char *val)
     return plist_new_node(data);
 }
 
-PLIST_API plist_t plist_new_string(const char *val)
+plist_t plist_new_string(const char *val)
 {
     plist_data_t data = plist_new_plist_data();
     data->type = PLIST_STRING;
@@ -263,7 +264,7 @@ PLIST_API plist_t plist_new_string(const char *val)
     return plist_new_node(data);
 }
 
-PLIST_API plist_t plist_new_bool(uint8_t val)
+plist_t plist_new_bool(uint8_t val)
 {
     plist_data_t data = plist_new_plist_data();
     data->type = PLIST_BOOLEAN;
@@ -272,7 +273,7 @@ PLIST_API plist_t plist_new_bool(uint8_t val)
     return plist_new_node(data);
 }
 
-PLIST_API plist_t plist_new_uint(uint64_t val)
+plist_t plist_new_uint(uint64_t val)
 {
     plist_data_t data = plist_new_plist_data();
     data->type = PLIST_UINT;
@@ -281,7 +282,7 @@ PLIST_API plist_t plist_new_uint(uint64_t val)
     return plist_new_node(data);
 }
 
-PLIST_API plist_t plist_new_uid(uint64_t val)
+plist_t plist_new_uid(uint64_t val)
 {
     plist_data_t data = plist_new_plist_data();
     data->type = PLIST_UID;
@@ -290,7 +291,7 @@ PLIST_API plist_t plist_new_uid(uint64_t val)
     return plist_new_node(data);
 }
 
-PLIST_API plist_t plist_new_real(double val)
+plist_t plist_new_real(double val)
 {
     plist_data_t data = plist_new_plist_data();
     data->type = PLIST_REAL;
@@ -299,7 +300,7 @@ PLIST_API plist_t plist_new_real(double val)
     return plist_new_node(data);
 }
 
-PLIST_API plist_t plist_new_data(const char *val, uint64_t length)
+plist_t plist_new_data(const char *val, uint64_t length)
 {
     plist_data_t data = plist_new_plist_data();
     data->type = PLIST_DATA;
@@ -309,7 +310,7 @@ PLIST_API plist_t plist_new_data(const char *val, uint64_t length)
     return plist_new_node(data);
 }
 
-PLIST_API plist_t plist_new_date(int32_t sec, int32_t usec)
+plist_t plist_new_date(int32_t sec, int32_t usec)
 {
     plist_data_t data = plist_new_plist_data();
     data->type = PLIST_DATE;
@@ -318,7 +319,7 @@ PLIST_API plist_t plist_new_date(int32_t sec, int32_t usec)
     return plist_new_node(data);
 }
 
-PLIST_API void plist_free(plist_t plist)
+void plist_free(plist_t plist)
 {
     if (plist)
     {
@@ -383,14 +384,14 @@ static void plist_copy_node(node_t *node, void *parent_node_ptr)
     node_iterator_destroy(ni);
 }
 
-PLIST_API plist_t plist_copy(plist_t node)
+plist_t plist_copy(plist_t node)
 {
     plist_t copied = NULL;
     plist_copy_node((node_t*)node, &copied);
     return copied;
 }
 
-PLIST_API uint32_t plist_array_get_size(plist_t node)
+uint32_t plist_array_get_size(plist_t node)
 {
     uint32_t ret = 0;
     if (node && PLIST_ARRAY == plist_get_node_type(node))
@@ -400,7 +401,7 @@ PLIST_API uint32_t plist_array_get_size(plist_t node)
     return ret;
 }
 
-PLIST_API plist_t plist_array_get_item(plist_t node, uint32_t n)
+plist_t plist_array_get_item(plist_t node, uint32_t n)
 {
     plist_t ret = NULL;
     if (node && PLIST_ARRAY == plist_get_node_type(node))
@@ -410,7 +411,7 @@ PLIST_API plist_t plist_array_get_item(plist_t node, uint32_t n)
     return ret;
 }
 
-PLIST_API uint32_t plist_array_get_item_index(plist_t node)
+uint32_t plist_array_get_item_index(plist_t node)
 {
     plist_t father = plist_get_parent(node);
     if (PLIST_ARRAY == plist_get_node_type(father))
@@ -420,7 +421,7 @@ PLIST_API uint32_t plist_array_get_item_index(plist_t node)
     return 0;
 }
 
-PLIST_API void plist_array_set_item(plist_t node, plist_t item, uint32_t n)
+void plist_array_set_item(plist_t node, plist_t item, uint32_t n)
 {
     if (node && PLIST_ARRAY == plist_get_node_type(node))
     {
@@ -438,7 +439,7 @@ PLIST_API void plist_array_set_item(plist_t node, plist_t item, uint32_t n)
     return;
 }
 
-PLIST_API void plist_array_append_item(plist_t node, plist_t item)
+void plist_array_append_item(plist_t node, plist_t item)
 {
     if (node && PLIST_ARRAY == plist_get_node_type(node))
     {
@@ -447,7 +448,7 @@ PLIST_API void plist_array_append_item(plist_t node, plist_t item)
     return;
 }
 
-PLIST_API void plist_array_insert_item(plist_t node, plist_t item, uint32_t n)
+void plist_array_insert_item(plist_t node, plist_t item, uint32_t n)
 {
     if (node && PLIST_ARRAY == plist_get_node_type(node))
     {
@@ -456,7 +457,7 @@ PLIST_API void plist_array_insert_item(plist_t node, plist_t item, uint32_t n)
     return;
 }
 
-PLIST_API void plist_array_remove_item(plist_t node, uint32_t n)
+void plist_array_remove_item(plist_t node, uint32_t n)
 {
     if (node && PLIST_ARRAY == plist_get_node_type(node))
     {
@@ -469,7 +470,7 @@ PLIST_API void plist_array_remove_item(plist_t node, uint32_t n)
     return;
 }
 
-PLIST_API uint32_t plist_dict_get_size(plist_t node)
+uint32_t plist_dict_get_size(plist_t node)
 {
     uint32_t ret = 0;
     if (node && PLIST_DICT == plist_get_node_type(node))
@@ -479,7 +480,7 @@ PLIST_API uint32_t plist_dict_get_size(plist_t node)
     return ret;
 }
 
-PLIST_API void plist_dict_new_iter(plist_t node, plist_dict_iter *iter)
+void plist_dict_new_iter(plist_t node, plist_dict_iter *iter)
 {
     if (iter && *iter == NULL)
     {
@@ -489,7 +490,7 @@ PLIST_API void plist_dict_new_iter(plist_t node, plist_dict_iter *iter)
     return;
 }
 
-PLIST_API void plist_dict_next_item(plist_t node, plist_dict_iter iter, char **key, plist_t *val)
+void plist_dict_next_item(plist_t node, plist_dict_iter iter, char **key, plist_t *val)
 {
     uint32_t* iter_int = (uint32_t*) iter;
 
@@ -520,7 +521,7 @@ PLIST_API void plist_dict_next_item(plist_t node, plist_dict_iter iter, char **k
     return;
 }
 
-PLIST_API void plist_dict_get_item_key(plist_t node, char **key)
+void plist_dict_get_item_key(plist_t node, char **key)
 {
     plist_t father = plist_get_parent(node);
     if (PLIST_DICT == plist_get_node_type(father))
@@ -529,7 +530,7 @@ PLIST_API void plist_dict_get_item_key(plist_t node, char **key)
     }
 }
 
-PLIST_API plist_t plist_dict_get_item(plist_t node, const char* key)
+plist_t plist_dict_get_item(plist_t node, const char* key)
 {
     plist_t ret = NULL;
 
@@ -562,7 +563,7 @@ PLIST_API plist_t plist_dict_get_item(plist_t node, const char* key)
     return ret;
 }
 
-PLIST_API void plist_dict_set_item(plist_t node, const char* key, plist_t item)
+void plist_dict_set_item(plist_t node, const char* key, plist_t item)
 {
     if (node && PLIST_DICT == plist_get_node_type(node)) {
         node_t* old_item = (node_t*)plist_dict_get_item(node, key);
@@ -604,12 +605,12 @@ PLIST_API void plist_dict_set_item(plist_t node, const char* key, plist_t item)
     return;
 }
 
-PLIST_API void plist_dict_insert_item(plist_t node, const char* key, plist_t item)
+void plist_dict_insert_item(plist_t node, const char* key, plist_t item)
 {
     plist_dict_set_item(node, key, item);
 }
 
-PLIST_API void plist_dict_remove_item(plist_t node, const char* key)
+void plist_dict_remove_item(plist_t node, const char* key)
 {
     if (node && PLIST_DICT == plist_get_node_type(node))
     {
@@ -628,7 +629,7 @@ PLIST_API void plist_dict_remove_item(plist_t node, const char* key)
     return;
 }
 
-PLIST_API void plist_dict_merge(plist_t *target, plist_t source)
+void plist_dict_merge(plist_t *target, plist_t source)
 {
 	if (!target || !*target || (plist_get_node_type(*target) != PLIST_DICT) || !source || (plist_get_node_type(source) != PLIST_DICT))
 		return;
@@ -652,7 +653,7 @@ PLIST_API void plist_dict_merge(plist_t *target, plist_t source)
 	free(it);	
 }
 
-PLIST_API plist_t plist_access_pathv(plist_t plist, uint32_t length, va_list v)
+plist_t plist_access_pathv(plist_t plist, uint32_t length, va_list v)
 {
     plist_t current = plist;
     plist_type type = PLIST_NONE;
@@ -676,7 +677,7 @@ PLIST_API plist_t plist_access_pathv(plist_t plist, uint32_t length, va_list v)
     return current;
 }
 
-PLIST_API plist_t plist_access_path(plist_t plist, uint32_t length, ...)
+plist_t plist_access_path(plist_t plist, uint32_t length, ...)
 {
     plist_t ret = NULL;
     va_list v;
@@ -727,12 +728,12 @@ static void plist_get_type_and_value(plist_t node, plist_type * type, void *valu
     }
 }
 
-PLIST_API plist_t plist_get_parent(plist_t node)
+plist_t plist_get_parent(plist_t node)
 {
     return node ? (plist_t) ((node_t*) node)->parent : NULL;
 }
 
-PLIST_API plist_type plist_get_node_type(plist_t node)
+plist_type plist_get_node_type(plist_t node)
 {
     if (node)
     {
@@ -743,7 +744,7 @@ PLIST_API plist_type plist_get_node_type(plist_t node)
     return PLIST_NONE;
 }
 
-PLIST_API void plist_get_key_val(plist_t node, char **val)
+void plist_get_key_val(plist_t node, char **val)
 {
     plist_type type = plist_get_node_type(node);
     uint64_t length = 0;
@@ -752,7 +753,7 @@ PLIST_API void plist_get_key_val(plist_t node, char **val)
     assert(length == strlen(*val));
 }
 
-PLIST_API void plist_get_string_val(plist_t node, char **val)
+void plist_get_string_val(plist_t node, char **val)
 {
     plist_type type = plist_get_node_type(node);
     uint64_t length = 0;
@@ -761,7 +762,7 @@ PLIST_API void plist_get_string_val(plist_t node, char **val)
     assert(length == strlen(*val));
 }
 
-PLIST_API void plist_get_bool_val(plist_t node, uint8_t * val)
+void plist_get_bool_val(plist_t node, uint8_t * val)
 {
     plist_type type = plist_get_node_type(node);
     uint64_t length = 0;
@@ -770,7 +771,7 @@ PLIST_API void plist_get_bool_val(plist_t node, uint8_t * val)
     assert(length == sizeof(uint8_t));
 }
 
-PLIST_API void plist_get_uint_val(plist_t node, uint64_t * val)
+void plist_get_uint_val(plist_t node, uint64_t * val)
 {
     plist_type type = plist_get_node_type(node);
     uint64_t length = 0;
@@ -779,7 +780,7 @@ PLIST_API void plist_get_uint_val(plist_t node, uint64_t * val)
     assert(length == sizeof(uint64_t) || length == 16);
 }
 
-PLIST_API void plist_get_uid_val(plist_t node, uint64_t * val)
+void plist_get_uid_val(plist_t node, uint64_t * val)
 {
     plist_type type = plist_get_node_type(node);
     uint64_t length = 0;
@@ -788,7 +789,7 @@ PLIST_API void plist_get_uid_val(plist_t node, uint64_t * val)
     assert(length == sizeof(uint64_t));
 }
 
-PLIST_API void plist_get_real_val(plist_t node, double *val)
+void plist_get_real_val(plist_t node, double *val)
 {
     plist_type type = plist_get_node_type(node);
     uint64_t length = 0;
@@ -797,14 +798,14 @@ PLIST_API void plist_get_real_val(plist_t node, double *val)
     assert(length == sizeof(double));
 }
 
-PLIST_API void plist_get_data_val(plist_t node, char **val, uint64_t * length)
+void plist_get_data_val(plist_t node, char **val, uint64_t * length)
 {
     plist_type type = plist_get_node_type(node);
     if (PLIST_DATA == type)
         plist_get_type_and_value(node, &type, (void *) val, length);
 }
 
-PLIST_API void plist_get_date_val(plist_t node, int32_t * sec, int32_t * usec)
+void plist_get_date_val(plist_t node, int32_t * sec, int32_t * usec)
 {
     plist_type type = plist_get_node_type(node);
     uint64_t length = 0;
@@ -875,7 +876,7 @@ int plist_data_compare(const void *a, const void *b)
     return FALSE;
 }
 
-PLIST_API char plist_compare_node_value(plist_t node_l, plist_t node_r)
+char plist_compare_node_value(plist_t node_l, plist_t node_r)
 {
     return plist_data_compare(node_l, node_r);
 }
@@ -934,42 +935,42 @@ static void plist_set_element_val(plist_t node, plist_type type, const void *val
     }
 }
 
-PLIST_API void plist_set_key_val(plist_t node, const char *val)
+void plist_set_key_val(plist_t node, const char *val)
 {
     plist_set_element_val(node, PLIST_KEY, val, strlen(val));
 }
 
-PLIST_API void plist_set_string_val(plist_t node, const char *val)
+void plist_set_string_val(plist_t node, const char *val)
 {
     plist_set_element_val(node, PLIST_STRING, val, strlen(val));
 }
 
-PLIST_API void plist_set_bool_val(plist_t node, uint8_t val)
+void plist_set_bool_val(plist_t node, uint8_t val)
 {
     plist_set_element_val(node, PLIST_BOOLEAN, &val, sizeof(uint8_t));
 }
 
-PLIST_API void plist_set_uint_val(plist_t node, uint64_t val)
+void plist_set_uint_val(plist_t node, uint64_t val)
 {
     plist_set_element_val(node, PLIST_UINT, &val, sizeof(uint64_t));
 }
 
-PLIST_API void plist_set_uid_val(plist_t node, uint64_t val)
+void plist_set_uid_val(plist_t node, uint64_t val)
 {
     plist_set_element_val(node, PLIST_UID, &val, sizeof(uint64_t));
 }
 
-PLIST_API void plist_set_real_val(plist_t node, double val)
+void plist_set_real_val(plist_t node, double val)
 {
     plist_set_element_val(node, PLIST_REAL, &val, sizeof(double));
 }
 
-PLIST_API void plist_set_data_val(plist_t node, const char *val, uint64_t length)
+void plist_set_data_val(plist_t node, const char *val, uint64_t length)
 {
     plist_set_element_val(node, PLIST_DATA, val, length);
 }
 
-PLIST_API void plist_set_date_val(plist_t node, int32_t sec, int32_t usec)
+void plist_set_date_val(plist_t node, int32_t sec, int32_t usec)
 {
     double val = (double)sec + (double)usec / 1000000;
     plist_set_element_val(node, PLIST_DATE, &val, sizeof(struct timeval));

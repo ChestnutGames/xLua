@@ -51,20 +51,11 @@ set_property (
 list ( APPEND THIRDPART_INC rapidjson/include )
 list ( APPEND THIRDPART_SRC ${LUA_RAPIDJSON} )
 
+# thirdpart
 set ( LUA_SPROTO
     sproto/lsproto.c
     sproto/sproto.c
 )
-set_property (
-    SOURCE ${LUA_SPROTO}
-    APPEND
-    PROPERTY COMPILE_DEFINITIONS
-    LUA_LIB
-	XLUA
-)
-list ( APPEND THIRDPART_SRC ${LUA_SPROTO} )
-
-#begin lpeg
 set ( LUA_LPEG
     lpeg/lpcap.c
     lpeg/lpcode.c
@@ -72,34 +63,11 @@ set ( LUA_LPEG
     lpeg/lptree.c
     lpeg/lpvm.c
 )
-set_property(
-    SOURCE ${LUA_LPEG}
-    APPEND
-    PROPERTY COMPILE_DEFINITIONS
-    LUA_LIB
-	XLUA
-)
-list ( APPEND THIRDPART_SRC ${LUA_LPEG} )
-#end lpeg
-
-#begin xluasocket
 set ( LUA_XLUASOCKET
     xluasocket/lxluasocket.c
     xluasocket/ringbuf.c
     xluasocket/write_buffer.c
 )
-set_property(
-    SOURCE ${LUA_XLUASOCKET}
-    APPEND
-    PROPERTY COMPILE_DEFINITIONS
-    LUA_LIB
-	XLUA
-	XLUASOCKET
-)
-list ( APPEND THIRDPART_SRC ${LUA_XLUASOCKET} )
-#end xluasocket
-
-# thirdpart
 set ( LUA_SKYNET
     skynet/lsha1.c
     skynet/lua-crypt.c
@@ -108,23 +76,6 @@ set ( LUA_MD5 md5/md5.c)
 set ( LUA_RANDOM random/random.c)
 set ( LUA_TIMER timer/timer.c)
 set ( LUA_CHESTNUT
-#    chestnut/foundation/EntitasPP/ComponentTypeId.cpp
-#    chestnut/foundation/EntitasPP/Entity.cpp
-#    chestnut/foundation/EntitasPP/Group.cpp
-#    chestnut/foundation/EntitasPP/GroupObserver.cpp
-#    chestnut/foundation/EntitasPP/ISystem.cpp
-#    chestnut/foundation/EntitasPP/Matcher.cpp
-#    chestnut/foundation/EntitasPP/Pool.cpp
-#    chestnut/foundation/EntitasPP/ReactiveSystem.cpp
-#    chestnut/foundation/EntitasPP/SystemContainer.cpp
-#    chestnut/foundation/src/binaryheap.c
-#    chestnut/lualib-src/ball/lua-ball.cpp
-#    chestnut/lualib-src/ball/hexmap.cpp
-#    chestnut/lualib-src/ball/JoinSystem.cpp
-#    chestnut/lualib-src/ball/IndexSystem.cpp
-#    chestnut/lualib-src/ball/MapSystem.cpp
-#    chestnut/lualib-src/ball/MoveSystem.cpp
-#    chestnut/lualib-src/ball/PositionComponent.cpp
     chestnut/lua-array.c
     chestnut/lua-math.c
 	chestnut/lua-queue.c
@@ -149,19 +100,196 @@ set ( LUA_KCP
 	kcp/lkcp.c
 	kcp/lutil.c
 )
-set ( LUA_BOUNCE 
-	bounce/bounce/Collision/Shapes/b3Hull.cpp
-	bounce/bounce/Collision/Shapes/b3Polyhedron.cpp
-	bounce/bounce/Collision/Shapes/b3Shape.cpp
+set ( LUA_FIXMATH 
+    #./fixmath/bounce/Common/Math/b3r32.h ./fixmath/bounce/Common/Math/b3r32.cpp
+    #./fixmath/bounce/Collision/b3BroadPhase.h ./fixmath/bounce/Collision/b3DynamicAABBTree.h ./fixmath/bounce/Collision/b3SAT.h
+    #./fixmath/bounce/Collision/b3BroadPhase.cpp ./fixmath/bounce/Collision/b3DynamicAABBTree.cpp ./fixmath/bounce/Collision/b3SAT.cpp
+    #./fixmath/bounce/Collision/Shapes/b3Hull.h ./fixmath/bounce/Collision/Shapes/b3Polyhedron.h ./fixmath/bounce/Collision/Shapes/b3Shape.h
+    #./fixmath/bounce/Collision/Shapes/b3Hull.cpp ./fixmath/bounce/Collision/Shapes/b3Polyhedron.cpp ./fixmath/bounce/Collision/Shapes/b3Shape.cpp
+    #./fixmath/bounce/Common/b3Time.h ./fixmath/bounce/Common/b3Settings.h
+    #./fixmath/bounce/Common/b3Time.cpp ./fixmath/bounce/Common/b3Settings.cpp
+    #./fixmath/bounce/Common/Math/b3Vec3.h
+    #./fixmath/bounce/Common/Memory/b3BlockAllocator.h ./fixmath/bounce/Common/Memory/b3StackAllocator.h
+    #./fixmath/bounce/Common/Memory/b3BlockAllocator.cpp ./fixmath/bounce/Common/Memory/b3StackAllocator.cpp
+    #./fixmath/bounce/Dynamics/b3World.h ./fixmath/bounce/Dynamics/b3Island.h ./fixmath/bounce/Dynamics/b3Body.h
+    #./fixmath/bounce/Dynamics/b3World.cpp ./fixmath/bounce/Dynamics/b3Island.cpp ./fixmath/bounce/Dynamics/b3Body.cpp
+    #./fixmath/bounce/Dynamics/Joints/b3JointGraph.cpp ./fixmath/bounce/Dynamics/Joints/b3JointSolver.cpp ./fixmath/bounce/Dynamics/Joints/b3MouseJoint.cpp
+    #./fixmath/bounce/Dynamics/Joints/b3RevoluteJoint.cpp ./fixmath/bounce/Dynamics/Joints/b3SphericalJoint.cpp
+    #./fixmath/bounce/Dynamics/Contacts/b3ContactGraph.cpp ./fixmath/bounce/Dynamics/Contacts/b3ContactSolver.cpp
+    #./fixmath/bounce/lua-bounce.cpp
+	./fixmath/reactphysics3d/body/Body.cpp
+	./fixmath/reactphysics3d/body/Body.h
+	./fixmath/reactphysics3d/body/CollisionBody.cpp
+	./fixmath/reactphysics3d/body/CollisionBody.h
+	./fixmath/reactphysics3d/body/RigidBody.cpp
+	./fixmath/reactphysics3d/body/RigidBody.h
+	./fixmath/reactphysics3d/collision/broadphase/BroadPhaseAlgorithm.cpp
+	./fixmath/reactphysics3d/collision/broadphase/BroadPhaseAlgorithm.h
+	./fixmath/reactphysics3d/collision/broadphase/DynamicAABBTree.cpp
+	./fixmath/reactphysics3d/collision/broadphase/DynamicAABBTree.h
+	./fixmath/reactphysics3d/collision/narrowphase/GJK/GJKAlgorithm.cpp
+	./fixmath/reactphysics3d/collision/narrowphase/GJK/GJKAlgorithm.h
+	./fixmath/reactphysics3d/collision/narrowphase/GJK/VoronoiSimplex.cpp
+	./fixmath/reactphysics3d/collision/narrowphase/GJK/VoronoiSimplex.h
+	./fixmath/reactphysics3d/collision/narrowphase/SAT/SATAlgorithm.cpp
+	./fixmath/reactphysics3d/collision/narrowphase/SAT/SATAlgorithm.h
+	./fixmath/reactphysics3d/collision/narrowphase/CapsuleVsCapsuleAlgorithm.cpp
+	./fixmath/reactphysics3d/collision/narrowphase/CapsuleVsCapsuleAlgorithm.h
+	./fixmath/reactphysics3d/collision/narrowphase/CapsuleVsConvexPolyhedronAlgorithm.cpp
+	./fixmath/reactphysics3d/collision/narrowphase/CapsuleVsConvexPolyhedronAlgorithm.h
+	./fixmath/reactphysics3d/collision/narrowphase/CollisionDispatch.h
+	./fixmath/reactphysics3d/collision/narrowphase/ConvexPolyhedronVsConvexPolyhedronAlgorithm.cpp
+	./fixmath/reactphysics3d/collision/narrowphase/ConvexPolyhedronVsConvexPolyhedronAlgorithm.h
+	./fixmath/reactphysics3d/collision/narrowphase/DefaultCollisionDispatch.cpp
+	./fixmath/reactphysics3d/collision/narrowphase/DefaultCollisionDispatch.h
+	./fixmath/reactphysics3d/collision/narrowphase/NarrowPhaseAlgorithm.h
+	./fixmath/reactphysics3d/collision/narrowphase/SphereVsCapsuleAlgorithm.cpp
+	./fixmath/reactphysics3d/collision/narrowphase/SphereVsCapsuleAlgorithm.h
+	./fixmath/reactphysics3d/collision/narrowphase/SphereVsConvexPolyhedronAlgorithm.cpp
+	./fixmath/reactphysics3d/collision/narrowphase/SphereVsConvexPolyhedronAlgorithm.h
+	./fixmath/reactphysics3d/collision/narrowphase/SphereVsSphereAlgorithm.cpp
+	./fixmath/reactphysics3d/collision/narrowphase/SphereVsSphereAlgorithm.h
+	./fixmath/reactphysics3d/collision/shapes/AABB.cpp
+	./fixmath/reactphysics3d/collision/shapes/AABB.h
+	./fixmath/reactphysics3d/collision/shapes/BoxShape.cpp
+	./fixmath/reactphysics3d/collision/shapes/BoxShape.h
+	./fixmath/reactphysics3d/collision/shapes/CapsuleShape.cpp
+	./fixmath/reactphysics3d/collision/shapes/CapsuleShape.h
+	./fixmath/reactphysics3d/collision/shapes/CollisionShape.cpp
+	./fixmath/reactphysics3d/collision/shapes/CollisionShape.h
+	./fixmath/reactphysics3d/collision/shapes/ConcaveMeshShape.cpp
+	./fixmath/reactphysics3d/collision/shapes/ConcaveMeshShape.h
+	./fixmath/reactphysics3d/collision/shapes/ConcaveShape.cpp
+	./fixmath/reactphysics3d/collision/shapes/ConcaveShape.h
+	./fixmath/reactphysics3d/collision/shapes/ConvexMeshShape.cpp
+	./fixmath/reactphysics3d/collision/shapes/ConvexMeshShape.h
+	./fixmath/reactphysics3d/collision/shapes/ConvexPolyhedronShape.cpp
+	./fixmath/reactphysics3d/collision/shapes/ConvexPolyhedronShape.h
+	./fixmath/reactphysics3d/collision/shapes/ConvexShape.cpp
+	./fixmath/reactphysics3d/collision/shapes/ConvexShape.h
+	./fixmath/reactphysics3d/collision/shapes/HeightFieldShape.cpp
+	./fixmath/reactphysics3d/collision/shapes/HeightFieldShape.h
+	./fixmath/reactphysics3d/collision/shapes/SphereShape.cpp
+	./fixmath/reactphysics3d/collision/shapes/SphereShape.h
+	./fixmath/reactphysics3d/collision/shapes/TriangleShape.cpp
+	./fixmath/reactphysics3d/collision/shapes/TriangleShape.h
+	./fixmath/reactphysics3d/collision/CollisionCallback.cpp
+	./fixmath/reactphysics3d/collision/CollisionCallback.h
+	./fixmath/reactphysics3d/collision/CollisionDetection.cpp
+	./fixmath/reactphysics3d/collision/CollisionDetection.h
+	./fixmath/reactphysics3d/collision/ContactManifold.cpp
+	./fixmath/reactphysics3d/collision/ContactManifold.h
+	./fixmath/reactphysics3d/collision/ContactManifoldInfo.cpp
+	./fixmath/reactphysics3d/collision/ContactManifoldInfo.h
+	./fixmath/reactphysics3d/collision/ContactManifoldSet.cpp
+	./fixmath/reactphysics3d/collision/ContactManifoldSet.h
+	./fixmath/reactphysics3d/collision/ContactPointInfo.h
+	./fixmath/reactphysics3d/collision/HalfEdgeStructure.cpp
+	./fixmath/reactphysics3d/collision/HalfEdgeStructure.h
+	./fixmath/reactphysics3d/collision/MiddlePhaseTriangleCallback.cpp
+	./fixmath/reactphysics3d/collision/MiddlePhaseTriangleCallback.h
+	./fixmath/reactphysics3d/collision/NarrowPhaseInfo.cpp
+	./fixmath/reactphysics3d/collision/NarrowPhaseInfo.h
+	./fixmath/reactphysics3d/collision/OverlapCallback.h
+	./fixmath/reactphysics3d/collision/PolygonVertexArray.cpp
+	./fixmath/reactphysics3d/collision/PolygonVertexArray.h
+	./fixmath/reactphysics3d/collision/PolyhedronMesh.cpp
+	./fixmath/reactphysics3d/collision/PolyhedronMesh.h
+	./fixmath/reactphysics3d/collision/ProxyShape.cpp
+	./fixmath/reactphysics3d/collision/ProxyShape.h
+	./fixmath/reactphysics3d/collision/RaycastInfo.cpp
+	./fixmath/reactphysics3d/collision/RaycastInfo.h
+	./fixmath/reactphysics3d/collision/TriangleMesh.cpp
+	./fixmath/reactphysics3d/collision/TriangleMesh.h
+	./fixmath/reactphysics3d/collision/TriangleVertexArray.cpp
+	./fixmath/reactphysics3d/collision/TriangleVertexArray.h
+	./fixmath/reactphysics3d/constraint/BallAndSocketJoint.cpp
+	./fixmath/reactphysics3d/constraint/BallAndSocketJoint.h
+	./fixmath/reactphysics3d/constraint/ContactPoint.cpp
+	./fixmath/reactphysics3d/constraint/ContactPoint.h
+	./fixmath/reactphysics3d/constraint/FixedJoint.cpp
+	./fixmath/reactphysics3d/constraint/FixedJoint.h
+	./fixmath/reactphysics3d/constraint/HingeJoint.cpp
+	./fixmath/reactphysics3d/constraint/HingeJoint.h
+	./fixmath/reactphysics3d/constraint/Joint.cpp
+	./fixmath/reactphysics3d/constraint/Joint.h
+	./fixmath/reactphysics3d/constraint/SliderJoint.cpp
+	./fixmath/reactphysics3d/constraint/SliderJoint.h
+	./fixmath/reactphysics3d/engine/CollisionWorld.cpp
+	./fixmath/reactphysics3d/engine/CollisionWorld.h
+	./fixmath/reactphysics3d/engine/ConstraintSolver.cpp
+	./fixmath/reactphysics3d/engine/ConstraintSolver.h
+	./fixmath/reactphysics3d/engine/ContactSolver.cpp
+	./fixmath/reactphysics3d/engine/ContactSolver.h
+	./fixmath/reactphysics3d/engine/DynamicsWorld.cpp
+	./fixmath/reactphysics3d/engine/DynamicsWorld.h
+	./fixmath/reactphysics3d/engine/EventListener.h
+	./fixmath/reactphysics3d/engine/Island.cpp
+	./fixmath/reactphysics3d/engine/Material.cpp
+	./fixmath/reactphysics3d/engine/OverlappingPair.cpp
+	./fixmath/reactphysics3d/engine/Timer.cpp
+	./fixmath/reactphysics3d/mathematics/mathematics_functions.cpp
+	./fixmath/reactphysics3d/mathematics/Matrix2x2.cpp
+	./fixmath/reactphysics3d/mathematics/Matrix3x3.cpp
+	./fixmath/reactphysics3d/mathematics/Matrix3x3.h
+	./fixmath/reactphysics3d/mathematics/Quaternion.cpp
+	./fixmath/reactphysics3d/mathematics/Transform.cpp
+	./fixmath/reactphysics3d/mathematics/Transform.h
+	./fixmath/reactphysics3d/mathematics/Vector2.cpp
+	./fixmath/reactphysics3d/mathematics/Vector2.h
+	./fixmath/reactphysics3d/mathematics/Vector3.cpp
+	./fixmath/reactphysics3d/mathematics/Vector3.h
+	./fixmath/reactphysics3d/memory/DefaultPoolAllocator.cpp
+	./fixmath/reactphysics3d/memory/DefaultSingleFrameAllocator.cpp
+	./fixmath/reactphysics3d/memory/MemoryManager.cpp
+	./fixmath/reactphysics3d/utils/Logger.cpp
+	./fixmath/reactphysics3d/utils/Logger.h
+	./fixmath/reactphysics3d/utils/Profiler.cpp
+	./fixmath/reactphysics3d/b3r32.cpp
+	./fixmath/reactphysics3d/b3r32.h
+	./fixmath/reactphysics3d/decimal.h
+	./fixmath/reactphysics3d/lua-reactphysics3d.cpp
+    ./fixmath/libfixmath/fix16.h
+    ./fixmath/libfixmath/fix16.c 
+	./fixmath/libfixmath/fix16_exp.c 
+	./fixmath/libfixmath/fix16_sqrt.c 
+	./fixmath/libfixmath/fix16_str.c 
+    ./fixmath/libfixmath/fix16_trig.c 
+	./fixmath/libfixmath/fract32.c 
+	./fixmath/libfixmath/uint32.c
+)
+set ( LUA_PLIST 
+	plist/libcnary/iterator.c
+	plist/libcnary/list.c
+	plist/libcnary/node.c
+	plist/libcnary/node_iterator.c
+	plist/libcnary/node_list.c
+	plist/src/base64.c
+	plist/src/bplist.c
+	plist/src/bytearray.c
+	plist/src/hashtable.c
+	plist/src/plist.c
+	plist/src/ptrarray.c
+	plist/src/time64.c
+	plist/src/xplist.c
 )
 set_property(
-    SOURCE ${LUA_MD5} ${LUA_RANDOM} ${LUA_TIMER} ${LUA_CHESTNUT} ${LUA_RUDP} ${LUA_MTRAND} ${LUA_KCP} ${LUA_SKYNET}
+    SOURCE ${LUA_MD5} ${LUA_RANDOM} ${LUA_TIMER} ${LUA_CHESTNUT} ${LUA_RUDP} ${LUA_MTRAND} ${LUA_KCP} ${LUA_SKYNET} ${LUA_FIXMATH} ${LUA_PLIST} ${LUA_XLUASOCKET} ${LUA_LPEG} ${LUA_SPROTO}
     APPEND
     PROPERTY COMPILE_DEFINITIONS
     LUA_LIB
 )
-list ( APPEND THIRDPART_SRC ${LUA_MD5} ${LUA_RANDOM} ${LUA_TIMER} ${LUA_CHESTNUT} ${LUA_RUDP} ${LUA_MTRAND} ${LUA_KCP} ${LUA_SKYNET})
-
+set_property(
+    SOURCE ${LUA_XLUASOCKET}
+    APPEND
+    PROPERTY COMPILE_DEFINITIONS
+	XLUASOCKET
+)
+list ( APPEND THIRDPART_SRC ${LUA_MD5} ${LUA_RANDOM} ${LUA_TIMER} ${LUA_CHESTNUT} ${LUA_RUDP} ${LUA_MTRAND} ${LUA_KCP} ${LUA_SKYNET} ${LUA_XLUASOCKET} ${LUA_LPEG} ${LUA_SPROTO} ${LUA_FIXMATH} )
+list ( APPEND THIRDPART_SRC ${LUA_PLIST})
+list ( APPEND THIRDPART_INC plist/include )
+list ( APPEND THIRDPART_INC plist/libcnary/include )
+list ( APPEND THIRDPART_INC LuaBridge fixmath/libfixmath fixmath/reactphysics3d )
 
 if (USING_LUAJIT)
 	
@@ -274,6 +402,8 @@ source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_TIMER)
 source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_RUDP)
 source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_MTRAND)
 source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_KCP)
+source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_FIXMATH)
+source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_PLIST)
 
 if (APPLE)
     if (IOS)

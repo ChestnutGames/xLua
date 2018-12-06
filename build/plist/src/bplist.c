@@ -1,4 +1,4 @@
-/*
+﻿/*
  * bplist.c
  * Binary plist implementation
  *
@@ -24,22 +24,21 @@
 #include <config.h>
 #endif
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <assert.h>
-
-#include <ctype.h>
-#include <inttypes.h>
-
-#include <plist/plist.h>
 #include "plist.h"
 #include "hashtable.h"
 #include "bytearray.h"
 #include "ptrarray.h"
 
+#include <plist/plist.h>
 #include <node.h>
 #include <node_iterator.h>
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <assert.h>
+#include <ctype.h>
+#include <inttypes.h>
 
 #ifndef _MSC_VER
 #define PACK( __Declaration__ ) __Declaration__ __attribute__((__packed__))
@@ -835,7 +834,7 @@ static plist_t parse_bin_node_at_index(struct bplist_data *bplist, uint32_t node
     return plist;
 }
 
-PLIST_API void plist_from_bin(const char *plist_bin, uint32_t length, plist_t * plist)
+void plist_from_bin(const char *plist_bin, uint32_t length, plist_t * plist)
 {
     bplist_trailer_t *trailer = NULL;
     uint8_t offset_size = 0;
@@ -1229,7 +1228,7 @@ static uint16_t *plist_utf8_to_utf16(char *unistr, long size, long *items_read, 
 
 }
 
-PLIST_API void plist_to_bin(plist_t plist, char **plist_bin, uint32_t * length)
+void plist_to_bin(plist_t plist, char **plist_bin, uint32_t * length)
 {
     ptrarray_t* objects = NULL;
     hashtable_t* ref_table = NULL;
@@ -1377,7 +1376,7 @@ PLIST_API void plist_to_bin(plist_t plist, char **plist_bin, uint32_t * length)
     byte_array_free(bplist_buff);
 }
 
-PLIST_API void plist_to_bin_free(char **plist_bin)
+void plist_to_bin_free(char **plist_bin)
 {
     free(plist_bin);
 }

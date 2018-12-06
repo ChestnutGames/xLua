@@ -1,4 +1,4 @@
-/*
+﻿/*
  * xplist.c
  * XML plist implementation
  *
@@ -20,13 +20,21 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
+#include "plist.h"
+#include "base64.h"
+#include "strbuf.h"
+#include "time64.h"
 
 #ifdef _MSC_VER
 #include "msc_config.h"
+#endif
+
+#include <node.h>
+#include <node_list.h>
+#include <node_iterator.h>
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
 #endif
 
 #ifdef HAVE_STRPTIME
@@ -38,18 +46,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
-
 #include <inttypes.h>
 #include <math.h>
 
-#include <node.h>
-#include <node_list.h>
-#include <node_iterator.h>
-
-#include "plist.h"
-#include "base64.h"
-#include "strbuf.h"
-#include "time64.h"
 
 #define XPLIST_KEY	"key"
 #define XPLIST_KEY_LEN 3
@@ -403,7 +402,7 @@ static void parse_date(const char *strval, struct TM *btime)
     btime->tm_isdst=0;
 }
 
-PLIST_API void plist_to_xml(plist_t plist, char **plist_xml, uint32_t * length)
+void plist_to_xml(plist_t plist, char **plist_xml, uint32_t * length)
 {
     strbuf_t *outbuf = str_buf_new();
 
@@ -1306,12 +1305,12 @@ err_out:
     }
 }
 
-PLIST_API void plist_to_xml_free(char **plist_xml)
+void plist_to_xml_free(char **plist_xml)
 {
 	free(plist_xml);
 }
 
-PLIST_API void plist_from_xml(const char *plist_xml, uint32_t length, plist_t * plist)
+void plist_from_xml(const char *plist_xml, uint32_t length, plist_t * plist)
 {
     if (!plist_xml || (length == 0)) {
         *plist = NULL;

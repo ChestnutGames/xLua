@@ -1,4 +1,4 @@
-/*
+﻿/*
  * plist.h
  * contains structures and the like for plists
  *
@@ -26,31 +26,16 @@
 #include <config.h>
 #endif
 
-#include "plist/plist.h"
-
+#include <plist/plist.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER)
 #pragma warning(disable:4996)
 #pragma warning(disable:4244)
 #include <winsock2.h>
 #else
 #include <sys/time.h>
-#endif
-
-#ifdef _MSC_VER
-  #define PLIST_API __declspec( dllexport )
-#else
-#ifdef WIN32
-  #define PLIST_API __declspec( dllexport )
-#else
-  #ifdef HAVE_FVISIBILITY
-    #define PLIST_API __attribute__((visibility("default")))
-  #else
-    #define PLIST_API
-  #endif
-#endif
 #endif
 
 struct plist_data_s
