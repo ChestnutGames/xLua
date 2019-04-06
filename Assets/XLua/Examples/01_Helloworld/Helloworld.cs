@@ -20,7 +20,7 @@ public class Helloworld : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         LuaEnv luaenv = new LuaEnv();
-        luaenv.DoString("CS.UnityEngine.Debug.Log('hello world') local go = CS.UnityEngine.GameObject() go:AddAudioSource()");
+        luaenv.DoString("CS.UnityEngine.Debug.Log('hello world') local go = CS.UnityEngine.GameObject() go:AddAudioSource() ");
         luaenv.Dispose();
 	}
 	
