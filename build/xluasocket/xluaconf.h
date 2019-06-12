@@ -26,8 +26,8 @@
 #define FREE    free
 #define REALLOC realloc
 
-#define HEADER_TYPE_LINE 0
-#define HEADER_TYPE_PG   1
+#define HEADER_TYPE_LINE 1
+#define HEADER_TYPE_PG   2
 
 #define RINGBUF_SIZE      4096
 #define WRITE_BUFFER_SIZE 2048

@@ -64,9 +64,24 @@ set ( LUA_LPEG
     lpeg/lpvm.c
 )
 set ( LUA_XLUASOCKET
-    xluasocket/lxluasocket.c
-    xluasocket/ringbuf.c
-    xluasocket/write_buffer.c
+	xluasocket/posix/unistd.c
+	xluasocket/Win32_Interop/Win32_APIs.c
+	xluasocket/Win32_Interop/win32_cpoll.c
+	xluasocket/Win32_Interop/Win32_dlfcn.c
+	xluasocket/Win32_Interop/Win32_Error.c
+	xluasocket/Win32_Interop/Win32_Extras.c
+	xluasocket/Win32_Interop/Win32_PThread.c
+	xluasocket/Win32_Interop/Win32_ThreadControl.c
+	xluasocket/Win32_Interop/Win32_Time.c
+	xluasocket/dict.c
+	xluasocket/lxluasocket.c 
+	xluasocket/message_queue.c
+	xluasocket/ringbuf.c
+	xluasocket/skynet_timer.c
+	xluasocket/socket_server.c
+	xluasocket/util.c
+	xluasocket/xxhash.c
+	xluasocket/zmalloc.c
 )
 set ( LUA_SKYNET
     skynet/lsha1.c
@@ -77,12 +92,9 @@ set ( LUA_RANDOM random/random.c)
 set ( LUA_TIMER timer/timer.c)
 set ( LUA_CHESTNUT
     chestnut/lua-array.c
-    chestnut/lua-math.c
 	chestnut/lua-queue.c
 	chestnut/lua-stack.c
-    chestnut/lua-timesync.c
     chestnut/lua-vector.c
-    chestnut/timeutils.c
 )
 set ( LUA_RUDP
 	rudp/lua-rudp.c
@@ -290,6 +302,7 @@ list ( APPEND THIRDPART_SRC ${LUA_PLIST})
 list ( APPEND THIRDPART_INC plist/include )
 list ( APPEND THIRDPART_INC plist/libcnary/include )
 list ( APPEND THIRDPART_INC LuaBridge fixmath/libfixmath fixmath/reactphysics3d )
+list ( APPEND THIRDPART_INC xluasocket/posix )
 
 if (USING_LUAJIT)
 	
