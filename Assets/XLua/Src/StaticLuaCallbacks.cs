@@ -164,7 +164,10 @@ namespace XLua
                 if (udata != -1)
                 {
                     ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-                    translator.collectObject(udata);
+                    if ( translator != null )
+                    {
+                        translator.collectObject(udata);
+                    }
                 }
                 return 0;
             }
@@ -633,7 +636,7 @@ namespace XLua
         }
 #endif
 
-#if !UNITY_SWITCH || UNITY_EDITOR
+#if (!UNITY_SWITCH && !UNITY_WEBGL) || UNITY_EDITOR
         [MonoPInvokeCallback(typeof(LuaCSFunction))]
         internal static int LoadSocketCore(RealStatePtr L)
         {

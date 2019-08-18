@@ -1,13 +1,13 @@
 @echo off
 echo =======================================================
-echo ËµÃ÷£º±¾Ê¾ÀýÊ¾·¶´ÓÃüÁîÐÐµ÷ÓÃUnity×Ô¶¯»¯¹¹½¨¡£
-echo       C#Ô´Âë²Î¿¼BuildFromCLI.cs
+echo Ëµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½ï¿½ï¿½Unityï¿½Ô¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+echo       C#Ô´ï¿½ï¿½Î¿ï¿½BuildFromCLI.cs
 echo.
-echo ×¢Òâ1£ºÐÞ¸Ä±¾ÎÄ¼þµÄÏà¹ØÂ·¾¶£º
-echo        UNITY_PATH£ºunity.exeµÄÍêÕûÂ·¾¶
-echo        PROJECT_PATH£º¹¤³Ì¸ùÄ¿Â¼µÄÍêÕûÂ·¾¶
-echo        LOG_PATH£º¹¹½¨ÈÕÖ¾ÍêÕûÂ·¾¶
-echo ×¢Òâ2£ºÖ´ÐÐÇëÏÈ¹Ø±ÕUnity
+echo ×¢ï¿½ï¿½1ï¿½ï¿½ï¿½Þ¸Ä±ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½ï¿½ï¿½
+echo        UNITY_PATHï¿½ï¿½unity.exeï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½
+echo        PROJECT_PATHï¿½ï¿½ï¿½ï¿½ï¿½Ì¸ï¿½Ä¿Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½
+echo        LOG_PATHï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¾ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½
+echo ×¢ï¿½ï¿½2ï¿½ï¿½Ö´ï¿½ï¿½ï¿½ï¿½ï¿½È¹Ø±ï¿½Unity
 echo =======================================================
 
 set UNITY_PATH="D:\Program Files (x86)\Unity 2017.4.3f1\Editor\Unity.exe"
@@ -16,13 +16,13 @@ set LOG_PATH="D:\work\xLua_forsakenyang\output\log.txt"
 
 echo start...
 
-rem È·±£ÈÕÖ¾Ä¿Â¼´æÔÚ
+rem È·ï¿½ï¿½ï¿½ï¿½Ö¾Ä¿Â¼ï¿½ï¿½ï¿½ï¿½
 for %%a in (%LOG_PATH%) do (
     set log_root=%%~dpa
 )    
 if not exist %log_root% mkdir %log_root%
 
-%UNITY_PATH% -batchmode -quit -projectPath %PROJECT_PATH% -logFile %LOG_PATH% -executeMethod BuildFromCLI.Build
+%UNITY_PATH% -batchmode -quit -projectPath %PROJECT_PATH% -logFile %LOG_PATH% -executeMethod XLuaTest.BuildFromCLI.Build
 
 echo done.
 pause

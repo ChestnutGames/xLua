@@ -1,9 +1,9 @@
-﻿/*
- * Tencent is pleased to support the open source community by making xLua available.
- * Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
- * Licensed under the MIT License (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
- * http://opensource.org/licenses/MIT
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+/*
+* Tencent is pleased to support the open source community by making xLua available.
+* Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
+* Licensed under the MIT License (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+* http://opensource.org/licenses/MIT
+* Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 */
 
 using System.Collections.Generic;
@@ -74,10 +74,15 @@ public static class ExampleConfig
     //{
     //    get
     //    {
+    //        List<string> namespaces = new List<string>() // 在这里添加名字空间
+    //        {
+    //            "UnityEngine",
+    //            "UnityEngine.UI"
+    //        };
     //        var unityTypes = (from assembly in AppDomain.CurrentDomain.GetAssemblies()
     //                          where !(assembly.ManifestModule is System.Reflection.Emit.ModuleBuilder)
     //                          from type in assembly.GetExportedTypes()
-    //                          where type.Namespace != null && type.Namespace.StartsWith("UnityEngine") && !isExcluded(type)
+    //                          where type.Namespace != null && namespaces.Contains(type.Namespace) && !isExcluded(type)
     //                                  && type.BaseType != typeof(MulticastDelegate) && !type.IsInterface && !type.IsEnum
     //                          select type);
 
@@ -126,7 +131,7 @@ public static class ExampleConfig
     //                }
     //            }
     //        }
-    //        return delegate_types.Distinct().ToList();
+    //        return delegate_types.Where(t => t.BaseType == typeof(MulticastDelegate) && !hasGenericParameter(t) && !delegateHasEditorRef(t)).Distinct().ToList();
     //    }
     //}
     //--------------end 纯lua编程配置参考----------------------------
@@ -137,9 +142,9 @@ public static class ExampleConfig
     //{
     //    get
     //    {
-    //        return (from type in Assembly.Load("Assembly-CSharp").GetExportedTypes()
-    //                           where type.Namespace == null || !type.Namespace.StartsWith("XLua")
-    //                           select type);
+    //        return (from type in Assembly.Load("Assembly-CSharp").GetTypes()
+    //                where type.Namespace == null || !type.Namespace.StartsWith("XLua")
+    //                select type);
     //    }
     //}
     //--------------begin 热补丁自动化配置-------------------------
@@ -268,4 +273,35 @@ public static class ExampleConfig
                 new List<string>(){"System.IO.DirectoryInfo", "Create", "System.Security.AccessControl.DirectorySecurity"},
                 new List<string>(){"UnityEngine.MonoBehaviour", "runInEditMode"},
             };
+
+#if UNITY_2018_1_OR_NEWER
+    [BlackList]
+    public static Func<MemberInfo, bool> MethodFilter = (memberInfo) =>
+    {
+        if (memberInfo.DeclaringType.IsGenericType && memberInfo.DeclaringType.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+        {
+            if (memberInfo.MemberType == MemberTypes.Constructor)
+            {
+                ConstructorInfo constructorInfo = memberInfo as ConstructorInfo;
+                var parameterInfos = constructorInfo.GetParameters();
+                if (parameterInfos.Length > 0)
+                {
+                    if (typeof(System.Collections.IEnumerable).IsAssignableFrom(parameterInfos[0].ParameterType))
+                    {
+                        return true;
+                    }
+                }
+            }
+            else if (memberInfo.MemberType == MemberTypes.Method)
+            {
+                var methodInfo = memberInfo as MethodInfo;
+                if (methodInfo.Name == "TryAdd" || methodInfo.Name == "Remove" && methodInfo.GetParameters().Length == 2)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    };
+#endif
 }
