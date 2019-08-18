@@ -17,13 +17,14 @@
 #include "ringbuf.h"
 #include <string.h>
 #include <assert.h>
+#include <stdio.h>
 #if defined(_MSC_VER)
 #include <math.h>
 #define MIN min
 #else
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))
 #define MIN(a,b) (((a) < (b)) ? (a) : (b))
-//#define MIN min
+ //#define MIN min
 #endif
 
 #define MALLOC  malloc
@@ -50,6 +51,7 @@ struct ringbuf {
 	char *buf;
 	char *head, *tail;
 	size_t size;
+	int p, q;
 };
 
 /*
@@ -88,6 +90,7 @@ ringbuf_ext(ringbuf_t *rb) {
 ringbuf_t *
 ringbuf_new(size_t capacity) {
 	ringbuf_t *rb = MALLOC(sizeof(struct ringbuf));
+	memset(rb, 0, sizeof(struct ringbuf));
 	if (rb) {
 
 		/* One byte is used for detecting the full condition. */
@@ -149,6 +152,11 @@ ringbuf_is_full(const  ringbuf_t *rb) {
 bool
 ringbuf_is_empty(const  ringbuf_t *rb) {
 	return (ringbuf_bytes_free(rb) == ringbuf_capacity(rb)) ? true : false;
+}
+
+void
+ringbuf_statics(const ringbuf_t *rb) {
+	fprintf(stderr, "p => %d, q=> %d\n", rb->p, rb->q);
 }
 
 /*
@@ -235,6 +243,7 @@ ringbuf_memcpy_buffer(ringbuf_t *dst, const char *src, size_t count) {
 		if (dst->head == bufend)
 			dst->head = dst->buf;
 	}
+	dst->p += nread;
 	return RINGBUF_OK;
 }
 
@@ -339,6 +348,7 @@ ringbuf_memcpy_string(ringbuf_t *rb, const char *src, size_t count) {
 		memcpy(rb->buf, src + n, src - n);
 	}
 	rb->head = rb->buf + (((rb->head - rb->buf) + count) % rb->size);
+	rb->p += count + 2;
 	return RINGBUF_OK;
 }
 
@@ -357,6 +367,7 @@ ringbuf_memcpy_line(ringbuf_t *rb, const char *buf, size_t size) {
 	assert(rb->head >= rb->buf && rb->head < end);
 	rb->head[0] = '\n';
 	rb->head = ringbuf_nextp(rb, rb->head);
+	rb->p += size + 1;
 	return RINGBUF_OK;
 }
 
@@ -471,6 +482,7 @@ ringbuf_get_string(char **out, size_t *size, ringbuf_t *rb) {
 			*out = rb->tail;
 			*size = count;
 			rb->tail += count;
+			rb->q += count + 2;
 			return RINGBUF_OK;
 		} else {
 			int n = ((rb->tail - rb->buf) + count) % rb->size;
@@ -479,6 +491,7 @@ ringbuf_get_string(char **out, size_t *size, ringbuf_t *rb) {
 			*out = rb->tail;
 			*size = count;
 			rb->tail = rb->buf + n;
+			rb->q += count + 2;
 			return RINGBUF_OK;
 		}
 	}
@@ -497,6 +510,7 @@ ringbuf_get_line(char **out, size_t *size, ringbuf_t *rb) {
 				*out = rb->tail;
 				rb->tail[ofs] = '\0';
 				rb->tail += ofs + 1;
+				rb->q += ofs + 1;
 				return RINGBUF_OK;
 			} else {
 				int n = (rb->tail - rb->buf + ofs) % rb->size;
@@ -507,6 +521,7 @@ ringbuf_get_line(char **out, size_t *size, ringbuf_t *rb) {
 				rb->tail = rb->buf + n + 1;
 				if (rb->tail == end)
 					rb->tail = rb->buf;
+				rb->q += ofs + 1;
 				return RINGBUF_OK;
 			}
 		}
