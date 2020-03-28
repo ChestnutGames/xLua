@@ -1,4 +1,4 @@
-﻿# Tencent is pleased to support the open source community by making xLua available.
+# Tencent is pleased to support the open source community by making xLua available.
 # Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 # Licensed under the MIT License (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 # http://opensource.org/licenses/MIT
@@ -32,6 +32,7 @@ find_path(XLUA_PROJECT_DIR NAMES SConstruct
     )
 
 MARK_AS_ADVANCED(XLUA_PROJECT_DIR)
+
 set(LUA_SRC_PATH lua-5.3.5/src)
 set(LUAJIT_SRC_PATH luajit-2.1.0b3/src)
 
@@ -285,6 +286,7 @@ set ( LUA_PLIST
 	plist/src/time64.c
 	plist/src/xplist.c
 )
+
 set_property(
     SOURCE ${LUA_MD5} ${LUA_RANDOM} ${LUA_TIMER} ${LUA_CHESTNUT} ${LUA_RUDP} ${LUA_MTRAND} ${LUA_KCP} ${LUA_SKYNET} ${LUA_FIXMATH} ${LUA_PLIST} ${LUA_XLUASOCKET} ${LUA_LPEG} ${LUA_SPROTO}
     APPEND
@@ -332,7 +334,7 @@ if (USING_LUAJIT)
     endif ()
 	set ( LUA_LIB )
 else ()
-	set ( LUA_IDSIZE 120 CACHE NUMBER "gives the maximum size for the description of the source." )
+	set ( LUA_IDSIZE 120 CACHE STRING "gives the maximum size for the description of the source." )
 
 	configure_file ( ${LUA_SRC_PATH}/luaconf.h.in ${CMAKE_CURRENT_BINARY_DIR}/luaconf.h )
 
@@ -402,20 +404,6 @@ source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_SOCKET)
 source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_CORE)
 source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_LIB)
 source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} XLUA_CORE)
-source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_RAPIDJSON)
-source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_CHESTNUT)
-source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_SPROTO)
-source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_LPEG)
-source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_SKYNET)
-source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_XLUASOCKET)
-source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_MD5)
-source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_RANDOM)
-source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_TIMER)
-source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_RUDP)
-source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_MTRAND)
-source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_KCP)
-source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_FIXMATH)
-source_group_by_dir(${CMAKE_CURRENT_SOURCE_DIR} LUA_PLIST)
 
 if (APPLE)
     if (IOS)
@@ -429,6 +417,7 @@ if (APPLE)
         )
 		set_xcode_property (xlua IPHONEOS_DEPLOYMENT_TARGET "7.0" "all")
     else ()
+        ADD_DEFINITIONS(-DLUA_USE_MACOSX) #osx platform emmylua debugger must have this option or can not load cpath
         set(CMAKE_OSX_ARCHITECTURES "$(ARCHS_STANDARD_64_BIT)")
         add_library(xlua MODULE
             ${LUA_CORE}
@@ -461,8 +450,6 @@ endif ( )
 
 if ( WIN32 AND NOT CYGWIN )
     target_compile_definitions (xlua PRIVATE LUA_BUILD_AS_DLL)
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
 endif ( )
 
 if (GC64 AND USING_LUAJIT)
@@ -494,8 +481,7 @@ if ( WIN32 AND NOT CYGWIN )
     else ()
         target_link_libraries(xlua
             ws2_32
-            ${THIRDPART_LIB}
-            #${CMAKE_SOURCE_DIR}/chestnut/clib/libplist.lib
+            ${THIRDPART_LIB} 
         )
     endif()
 else ( )
