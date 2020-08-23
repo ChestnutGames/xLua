@@ -47,7 +47,6 @@ set_property (
     APPEND
     PROPERTY COMPILE_DEFINITIONS
     LUA_LIB
-	XLUA
 )
 list ( APPEND THIRDPART_INC rapidjson/include )
 list ( APPEND THIRDPART_SRC ${LUA_RAPIDJSON} )
@@ -96,16 +95,6 @@ set ( LUA_CHESTNUT
 	chestnut/lua-queue.c
 	chestnut/lua-stack.c
     chestnut/lua-vector.c
-)
-set ( LUA_RUDP
-	rudp/lua-rudp.c
-	rudp/rudp.c
-	rudp/rudp.h
-)
-set ( LUA_MTRAND
-	mt_rand/lua-mtrand.c
-	mt_rand/mt_rand.c
-	mt_rand/mt_rand.h
 )
 set ( LUA_KCP
 	kcp/ikcp.c
@@ -271,39 +260,15 @@ set ( LUA_FIXMATH
 	./fixmath/libfixmath/fract32.c 
 	./fixmath/libfixmath/uint32.c
 )
-set ( LUA_PLIST 
-	plist/libcnary/iterator.c
-	plist/libcnary/list.c
-	plist/libcnary/node.c
-	plist/libcnary/node_iterator.c
-	plist/libcnary/node_list.c
-	plist/src/base64.c
-	plist/src/bplist.c
-	plist/src/bytearray.c
-	plist/src/hashtable.c
-	plist/src/plist.c
-	plist/src/ptrarray.c
-	plist/src/time64.c
-	plist/src/xplist.c
-)
 
 set_property(
-    SOURCE ${LUA_MD5} ${LUA_RANDOM} ${LUA_TIMER} ${LUA_CHESTNUT} ${LUA_RUDP} ${LUA_MTRAND} ${LUA_KCP} ${LUA_SKYNET} ${LUA_FIXMATH} ${LUA_PLIST} ${LUA_XLUASOCKET} ${LUA_LPEG} ${LUA_SPROTO}
+    SOURCE ${LUA_MD5} ${LUA_RANDOM} ${LUA_TIMER} ${LUA_CHESTNUT} ${LUA_KCP} ${LUA_SKYNET} ${LUA_FIXMATH}  ${LUA_XLUASOCKET} ${LUA_LPEG} ${LUA_SPROTO}
     APPEND
     PROPERTY COMPILE_DEFINITIONS
     LUA_LIB
 )
-set_property(
-    SOURCE ${LUA_XLUASOCKET}
-    APPEND
-    PROPERTY COMPILE_DEFINITIONS
-	XLUASOCKET
-)
-list ( APPEND THIRDPART_SRC ${LUA_MD5} ${LUA_RANDOM} ${LUA_TIMER} ${LUA_CHESTNUT} ${LUA_RUDP} ${LUA_MTRAND} ${LUA_KCP} ${LUA_SKYNET} ${LUA_XLUASOCKET} ${LUA_LPEG} ${LUA_SPROTO} ${LUA_FIXMATH} )
-list ( APPEND THIRDPART_SRC ${LUA_PLIST})
-list ( APPEND THIRDPART_INC plist/include )
-list ( APPEND THIRDPART_INC plist/libcnary/include )
-list ( APPEND THIRDPART_INC LuaBridge fixmath/libfixmath fixmath/reactphysics3d )
+list ( APPEND THIRDPART_SRC ${LUA_MD5} ${LUA_RANDOM} ${LUA_TIMER} ${LUA_CHESTNUT} ${LUA_KCP} ${LUA_SKYNET} ${LUA_FIXMATH} ${LUA_XLUASOCKET} ${LUA_LPEG} ${LUA_SPROTO}  )
+list ( APPEND THIRDPART_INC fixmath fixmath/libfixmath fixmath/reactphysics3d )
 list ( APPEND THIRDPART_INC xluasocket/posix )
 
 if (USING_LUAJIT)
